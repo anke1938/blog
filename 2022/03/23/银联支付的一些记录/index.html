@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dev8888.cn","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.13.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在线网关支付  定义说明 网关支付产品主要适用于持卡人在商户网站B2C购物支付场景，持卡人通过点击银联在线支付图标，并跳转银联页面完成支付信息录入，最终完成支付。 从PC端发起的交易为WEB网关支付交易，从移动端发起的交易为WAP网关支付交易。  接口列表 消费接口 消费撤销接口 退货接口 交易查询状态接口 银联加密公钥更新查询接口 预授权接口 预授权撤销 预授权完成 预授权完成撤销 文件传输接口">
+<meta property="og:type" content="article">
+<meta property="og:title" content="银联支付的一些记录">
+<meta property="og:url" content="http://dev8888.cn/2022/03/23/%E9%93%B6%E8%81%94%E6%94%AF%E4%BB%98%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="Tree&#39;s Technology">
+<meta property="og:description" content="在线网关支付  定义说明 网关支付产品主要适用于持卡人在商户网站B2C购物支付场景，持卡人通过点击银联在线支付图标，并跳转银联页面完成支付信息录入，最终完成支付。 从PC端发起的交易为WEB网关支付交易，从移动端发起的交易为WAP网关支付交易。  接口列表 消费接口 消费撤销接口 退货接口 交易查询状态接口 银联加密公钥更新查询接口 预授权接口 预授权撤销 预授权完成 预授权完成撤销 文件传输接口">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-03-23T09:25:01.000Z">
+<meta property="article:modified_time" content="2022-11-14T15:06:02.500Z">
+<meta property="article:author" content="Tree">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dev8888.cn/2022/03/23/%E9%93%B6%E8%81%94%E6%94%AF%E4%BB%98%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%B0%E5%BD%95/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://dev8888.cn/2022/03/23/%E9%93%B6%E8%81%94%E6%94%AF%E4%BB%98%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%B0%E5%BD%95/","path":"2022/03/23/银联支付的一些记录/","title":"银联支付的一些记录"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>银联支付的一些记录 | Tree's Technology</title>
+  
+
+
+
+
+
+<link rel="stylesheet" href="https://lib.baomitu.com/social-share.js/1.0.16/css/share.min.css">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Tree's Technology</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录代码技术</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8%E7%BA%BF%E7%BD%91%E5%85%B3%E6%94%AF%E4%BB%98-%E5%AE%9A%E4%B9%89%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">在线网关支付  定义说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3%E5%88%97%E8%A1%A8"><span class="nav-number">2.</span> <span class="nav-text">接口列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%93%B6%E8%81%94%E6%94%AF%E4%BB%98"><span class="nav-number">3.</span> <span class="nav-text">银联支付</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%95%86%E6%88%B7%E9%9C%80%E8%A6%81%E5%85%88%E6%8F%90%E4%BA%A4-4%E4%B8%AA%E8%AF%81%E4%B9%A6-%E5%AD%98%E6%94%BE%E5%88%B0%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">商户需要先提交 4个证书,存放到服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%A5%E5%85%A5%E6%96%B9%E5%BC%8F"><span class="nav-number">4.1.</span> <span class="nav-text">接入方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E-%E6%B5%8B%E8%AF%95-%E8%AF%B7%E6%B1%82%E5%9D%87%E4%B8%BAPOST-%E8%AF%B7%E6%B1%82"><span class="nav-number">4.2.</span> <span class="nav-text">接口说明,测试      请求均为POST 请求</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Tree"
+      src="/uploads/123.jpg">
+  <p class="site-author-name" itemprop="name">Tree</p>
+  <div class="site-description" itemprop="description">一个小站</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/anke1938" title="GitHub → https:&#x2F;&#x2F;gitee.com&#x2F;anke1938" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:anke1938@qq.com" title="E-Mail → mailto:anke1938@qq.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://dev8888.cn/2022/03/23/%E9%93%B6%E8%81%94%E6%94%AF%E4%BB%98%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%B0%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/123.jpg">
+      <meta itemprop="name" content="Tree">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tree's Technology">
+      <meta itemprop="description" content="一个小站">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="银联支付的一些记录 | Tree's Technology">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          银联支付的一些记录
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-03-23 17:25:01" itemprop="dateCreated datePublished" datetime="2022-03-23T17:25:01+08:00">2022-03-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-11-14 23:06:02" itemprop="dateModified" datetime="2022-11-14T23:06:02+08:00">2022-11-14</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>4 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="在线网关支付-定义说明"><a href="#在线网关支付-定义说明" class="headerlink" title="在线网关支付  定义说明"></a>在线网关支付  定义说明</h3><blockquote>
+<p>网关支付产品主要适用于持卡人在商户网站B2C购物支付场景，持卡人通过点击银联在线支付图标，并跳转银联页面完成支付信息录入，最终完成支付。</p>
+<p>从PC端发起的交易为WEB网关支付交易，从移动端发起的交易为WAP网关支付交易。</p>
+</blockquote>
+<h3 id="接口列表"><a href="#接口列表" class="headerlink" title="接口列表"></a>接口列表</h3><ul>
+<li>消费接口</li>
+<li>消费撤销接口</li>
+<li>退货接口</li>
+<li>交易查询状态接口</li>
+<li>银联加密公钥更新查询接口</li>
+<li>预授权接口</li>
+<li>预授权撤销</li>
+<li>预授权完成</li>
+<li>预授权完成撤销</li>
+<li>文件传输接口（对账文件下载）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://open.unionpay.com/tjweb/acproduct/APIList?apiservId=448&amp;acpAPIId=754&amp;bussType=0</span><br></pre></td></tr></table></figure>
+ <span id="more"></span>
+<h3 id="银联支付"><a href="#银联支付" class="headerlink" title="银联支付"></a>银联支付</h3><h3 id="商户需要先提交-4个证书-存放到服务器"><a href="#商户需要先提交-4个证书-存放到服务器" class="headerlink" title="商户需要先提交 4个证书,存放到服务器"></a>商户需要先提交 4个证书,存放到服务器</h3><p>测试对应的交易记查看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://open.unionpay.com/tjweb/user/mchTest/trans?mchntOrderId=&amp;priAcctNo=6216261000000000018&amp;startTs=&amp;endTs=</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><h4 id="接入方式"><a href="#接入方式" class="headerlink" title="接入方式"></a>接入方式</h4><ul>
+<li>SDK 接入, pom 直接导入依赖文件</li>
+<li>fegin 微服务方式 使用</li>
+<li>如果pod 有开端口 ,直接访问 ip:port   对应的接口(一般测试使用)</li>
+</ul>
+</li>
+<li><h4 id="接口说明-测试-请求均为POST-请求"><a href="#接口说明-测试-请求均为POST-请求" class="headerlink" title="接口说明,测试      请求均为POST 请求"></a>接口说明,测试      请求均为POST 请求</h4><ul>
+<li><p>支付   会返回html 页面数据   应用应直接跳转到html页面    接口返回的 html  含有转义字符  需要转义后使用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">192.168.5.213:57733/unionpay/gateway/pay</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">	//分配的商户id</span><br><span class="line">    &quot;merId&quot;:&quot;777290058193407&quot;,</span><br><span class="line">     //自定义订单号</span><br><span class="line">    &quot;orderId&quot;:&quot;12324124212222&quot;,  </span><br><span class="line">    //支付金额</span><br><span class="line">    &quot;amount&quot;:6688 // todo  后续改成分</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>支付撤销    返回原始json 数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">192.168.5.213:57733/unionpay/gateway/unPay</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;merId&quot;:&quot;777290058193407&quot;,</span><br><span class="line">    &quot;orderId&quot;:&quot;972109221359280534008&quot;,  //流水号  </span><br><span class="line">    &quot;amount&quot;:222200    //分  必须全额</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>退款</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">192.168.5.213:57733/unionpay/gateway/refund</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;merId&quot;:&quot;777290058193407&quot;,</span><br><span class="line">    &quot;orderId&quot;:&quot;972109221359280534008&quot;,  //流水号  </span><br><span class="line">    &quot;amount&quot;:222200    //分</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>交易查询</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">192.168.5.213:57733/unionpay/gateway/refund</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;orderId&quot;:&quot;123456789002&quot;,</span><br><span class="line">    &quot;txnTime&quot;:&quot;20210910105439&quot;,</span><br><span class="line">    &quot;merId&quot;:&quot;777290058193407&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>预授权 返回html  直接跳转html 页面</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">192.168.5.213:57733/unionpay/gateway/preAuth</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;amount&quot;:&quot;888&quot;,  //分</span><br><span class="line">    &quot;merId&quot;:&quot;777290058193407&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>预授权撤销</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">192.168.5.213:57733/unionpay/gateway/preAuthUndo</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;orderId&quot;:&quot;152109231133332675248&quot;,</span><br><span class="line">    &quot;amount&quot;:888,</span><br><span class="line">    &quot;merId&quot;:&quot;777290058193407&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>预授权消费</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">192.168.5.213:57733/unionpay/gateway/preAuthFinish</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">	&quot;orderId&quot;:&quot;&quot;,</span><br><span class="line">	&quot;amount&quot;:&quot;&quot;,</span><br><span class="line">	&quot;merId&quot;:&quot;&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>预授权消费完成撤销退款</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">192.168.5.213:57733/unionpay/gateway/preAuthFinishUndo</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">	&quot;orderId&quot;:&quot;&quot;,</span><br><span class="line">	&quot;amount&quot;:&quot;&quot;,</span><br><span class="line">	&quot;merId&quot;:&quot;&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>更新证书接口   不建议测试</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">192.168.5.213:57733/unionpay/gateway/updateCert</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">	&quot;merId&quot;:&quot;&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取对账文件   测试账号不支持  500错误</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">192.168.5.213:57733/unionpay/gateway/getCheckFile</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">	&quot;dateMMdd&quot;:&quot;0923&quot;,</span><br><span class="line">	&quot;merId&quot;:&quot;&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer"><div class="post-widgets">
+    <div
+      class="social-share"
+      
+        data-sites="weibo,qq,wechat,tencent,douban,qzone,linkedin,diandian,facebook,twitter,google"
+      
+      
+        data-wechat-qrcode-title="share.title"
+      
+      
+        data-wechat-qrcode-helper="share.prompt"
+      
+    >
+    </div>
+  </div>
+  <script src="https://lib.baomitu.com/social-share.js/1.0.16/js/social-share.min.js"></script><script src="//sdk.jinrishici.com/v2/browser/jinrishici.js"></script>
+<script>
+  jinrishici.load((result) => {
+    let jrsc = document.getElementById('jrsc');
+    const data = result.data;
+    let author = data.origin.author;
+    let title = '《' + data.origin.title + '》';
+    let content = data.content.substr(0, data.content.length - 1);
+    let dynasty = data.origin.dynasty.substr(0, data.origin.dynasty.length - 1);
+    jrsc.innerText = content + ' @ ' + dynasty + '·' + author + title;
+  });
+</script>
+<div style="text-align: center"><span id="jrsc" >正在加载今日诗词....</span></div>
+
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/03/08/%E3%80%90%E8%AE%B0%E5%BD%95%E3%80%91%20%E6%97%B6%E5%85%89%20-%E6%97%A7%E6%97%A5%E6%97%B6%E5%85%89ktv/" rel="prev" title="【记录】 时光 -旧日时光ktv">
+                  <i class="fa fa-chevron-left"></i> 【记录】 时光 -旧日时光ktv
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/03/24/OAuth2%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%B0%E5%BD%95/" rel="next" title="OAuth2的一些记录">
+                  OAuth2的一些记录 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Tree</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">185k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">5:09</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div><script color="0,0,255" opacity="0.5" zIndex="-1" count="99" src="https://lib.baomitu.com/canvas-nest.js/1.0.1/canvas-nest.js"></script>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pangu/4.0.7/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

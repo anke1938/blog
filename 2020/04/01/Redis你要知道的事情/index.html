@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dev8888.cn","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.13.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Redis适用的场景 内存存储和持久化：redis支持异步将内存中的数据写到硬盘上，同时不影响继续服务 取最新N个数据的操作，如：可以将最新的10条评论的ID放在Redis的List集合里面 模拟类似于HttpSession这种需要设定过期时间的功能 发布、订阅消息系统 定时器、计数器  Redis性能测试1redis-benchmark -h 127.0.0.1 -p 6379 -t set,l">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis你要知道的事情">
+<meta property="og:url" content="http://dev8888.cn/2020/04/01/Redis%E4%BD%A0%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84%E4%BA%8B%E6%83%85/index.html">
+<meta property="og:site_name" content="Tree&#39;s Technology">
+<meta property="og:description" content="Redis适用的场景 内存存储和持久化：redis支持异步将内存中的数据写到硬盘上，同时不影响继续服务 取最新N个数据的操作，如：可以将最新的10条评论的ID放在Redis的List集合里面 模拟类似于HttpSession这种需要设定过期时间的功能 发布、订阅消息系统 定时器、计数器  Redis性能测试1redis-benchmark -h 127.0.0.1 -p 6379 -t set,l">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401165838.jpg">
+<meta property="og:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401180402.jpg">
+<meta property="og:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401182754.jpg">
+<meta property="og:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401185051.png">
+<meta property="og:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401185635.png">
+<meta property="og:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401194147.jpg">
+<meta property="og:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401194215.jpg">
+<meta property="article:published_time" content="2020-04-01T11:42:57.000Z">
+<meta property="article:modified_time" content="2022-11-14T15:06:02.453Z">
+<meta property="article:author" content="Tree">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401165838.jpg">
+
+
+<link rel="canonical" href="http://dev8888.cn/2020/04/01/Redis%E4%BD%A0%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84%E4%BA%8B%E6%83%85/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://dev8888.cn/2020/04/01/Redis%E4%BD%A0%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84%E4%BA%8B%E6%83%85/","path":"2020/04/01/Redis你要知道的事情/","title":"Redis你要知道的事情"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Redis你要知道的事情 | Tree's Technology</title>
+  
+
+
+
+
+
+<link rel="stylesheet" href="https://lib.baomitu.com/social-share.js/1.0.16/css/share.min.css">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Tree's Technology</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录代码技术</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E9%80%82%E7%94%A8%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">Redis适用的场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95"><span class="nav-number">2.</span> <span class="nav-text">Redis性能测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E6%98%AF%E5%8D%95%E7%BA%BF%E7%A8%8B%E7%9A%84"><span class="nav-number">3.</span> <span class="nav-text">Redis是单线程的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis-%E5%92%8C-memecache-%E5%8C%BA%E5%88%AB"><span class="nav-number">4.</span> <span class="nav-text">Redis 和 memecache 区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis-%E6%94%AF%E6%8C%81%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">5.</span> <span class="nav-text">Redis 支持的数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E5%9F%BA%E6%9C%AC%E4%BA%8B%E5%8A%A1%E6%93%8D%E4%BD%9C-%E6%B2%A1%E6%9C%89%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E6%A6%82%E5%BF%B5"><span class="nav-number">6.</span> <span class="nav-text">Redis基本事务操作(没有隔离级别概念)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E7%9A%84%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81"><span class="nav-number">7.</span> <span class="nav-text">Redis的悲观锁和乐观锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E5%AE%9E%E7%8E%B0%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">8.</span> <span class="nav-text">Redis实现分布式锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E5%9C%A8Springboot2-x%E4%B9%8B%E5%90%8E-%E5%8E%9F%E6%9D%A5%E4%BD%BF%E7%94%A8%E7%9A%84jedis%E8%A2%AB%E6%9B%BF%E6%8D%A2%E4%B8%BA%E4%BA%86lettuce"><span class="nav-number">9.</span> <span class="nav-text">Redis在Springboot2.x之后,原来使用的jedis被替换为了lettuce</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis-%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">10.</span> <span class="nav-text">Redis 持久化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOF%E4%B8%8ERDB%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">11.</span> <span class="nav-text">AOF与RDB的优缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A5%E5%BF%97%E9%87%8D%E5%86%99%E8%A7%A3%E5%86%B3AOF%E6%96%87%E4%BB%B6%E5%A4%A7%E5%B0%8F%E4%B8%8D%E6%96%AD%E5%A2%9E%E5%8A%A0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">12.</span> <span class="nav-text">日志重写解决AOF文件大小不断增加的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E8%A7%A6%E5%8F%91RDB%E6%8C%81%E4%B9%85%E5%8C%96%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">13.</span> <span class="nav-text">自动触发RDB持久化的方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E7%9A%84%E8%AE%A2%E9%98%85%E5%8F%91%E5%B8%83-%E5%81%9A%E5%BC%82%E6%AD%A5%E9%98%9F%E5%88%97"><span class="nav-number">14.</span> <span class="nav-text">Redis的订阅发布(做异步队列)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6"><span class="nav-number">15.</span> <span class="nav-text">Redis主从复制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E5%93%A8%E5%85%B5%E6%9C%BA%E5%88%B6-Redis-Sentinel"><span class="nav-number">16.</span> <span class="nav-text">Redis哨兵机制  (Redis Sentinel)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F-%E6%9F%A5%E4%B8%8D%E5%88%B0"><span class="nav-number">17.</span> <span class="nav-text">Redis缓存穿透(查不到)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF-%E9%87%8F%E5%A4%AA%E5%A4%A7"><span class="nav-number">18.</span> <span class="nav-text">缓存击穿(量太大)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9-%E9%83%BD%E5%B4%A9%E6%BA%83"><span class="nav-number">19.</span> <span class="nav-text">缓存雪崩 (都崩溃)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96"><span class="nav-number">20.</span> <span class="nav-text">Redis内存优化</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Tree"
+      src="/uploads/123.jpg">
+  <p class="site-author-name" itemprop="name">Tree</p>
+  <div class="site-description" itemprop="description">一个小站</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/anke1938" title="GitHub → https:&#x2F;&#x2F;gitee.com&#x2F;anke1938" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:anke1938@qq.com" title="E-Mail → mailto:anke1938@qq.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://dev8888.cn/2020/04/01/Redis%E4%BD%A0%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84%E4%BA%8B%E6%83%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/123.jpg">
+      <meta itemprop="name" content="Tree">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tree's Technology">
+      <meta itemprop="description" content="一个小站">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Redis你要知道的事情 | Tree's Technology">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis你要知道的事情
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-04-01 19:42:57" itemprop="dateCreated datePublished" datetime="2020-04-01T19:42:57+08:00">2020-04-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-11-14 23:06:02" itemprop="dateModified" datetime="2022-11-14T23:06:02+08:00">2022-11-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">学习记录</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>5 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="Redis适用的场景"><a href="#Redis适用的场景" class="headerlink" title="Redis适用的场景"></a>Redis适用的场景</h2><ol>
+<li>内存存储和持久化：redis支持异步将内存中的数据写到硬盘上，同时不影响继续服务</li>
+<li>取最新N个数据的操作，如：可以将最新的10条评论的ID放在Redis的List集合里面</li>
+<li>模拟类似于HttpSession这种需要设定过期时间的功能</li>
+<li>发布、订阅消息系统</li>
+<li>定时器、计数器</li>
+</ol>
+<h2 id="Redis性能测试"><a href="#Redis性能测试" class="headerlink" title="Redis性能测试"></a>Redis性能测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-benchmark -h 127.0.0.1 -p 6379 -t <span class="built_in">set</span>,lpush -n 10000 -q</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Anke1938/image/raw/master/img/20200401165838.jpg" alt="QQ截图20200401165719"></p>
+<span id="more"></span>
+<h2 id="Redis是单线程的"><a href="#Redis是单线程的" class="headerlink" title="Redis是单线程的"></a>Redis是单线程的</h2><p>因为Redis是基于内存的操作，CPU不是Redis的瓶颈，Redis的瓶颈最有可能是机器内存的大小或者网络带宽。既然单线程容易实现，而且CPU不会成为瓶颈，那就顺理成章地采用单线程的方案了</p>
+<h2 id="Redis-和-memecache-区别"><a href="#Redis-和-memecache-区别" class="headerlink" title="Redis 和 memecache 区别"></a>Redis 和 memecache 区别</h2><ol>
+<li><strong>redis 支持复杂的数据结构</strong>	redis 相比 memcached 来说，拥有更多的数据结构，能支持更丰富的数据操作。如果需要缓存能够支持更复杂的结构和操作， redis 会是不错的选择。</li>
+<li><strong>redis 原生支持集群模式</strong></li>
+</ol>
+<h2 id="Redis-支持的数据结构"><a href="#Redis-支持的数据结构" class="headerlink" title="Redis 支持的数据结构"></a>Redis 支持的数据结构</h2><ul>
+<li>Redis支持五种数据类型：string（字符串），hash（哈希），list（列表），set（集合）及zset(sorted set：有序集合)</li>
+<li>另外还支持三种特殊类型geospatial(地理空间),hyperloglog(基数统计),bitmaps(位图)</li>
+</ul>
+<h2 id="Redis基本事务操作-没有隔离级别概念"><a href="#Redis基本事务操作-没有隔离级别概念" class="headerlink" title="Redis基本事务操作(没有隔离级别概念)"></a>Redis基本事务操作(没有隔离级别概念)</h2><blockquote>
+<p>redis事务的本质是一组命令的集合,一个事务中的命令都会被序列化,按顺序执行,一次性,顺序性,排他性,但是不保证原子性</p>
+</blockquote>
+<ul>
+<li>开启事务   (multi)</li>
+<li>命令入队   (….)</li>
+<li>执行事务   (exec)</li>
+<li>放弃事务   (discard)</li>
+</ul>
+<h2 id="Redis的悲观锁和乐观锁"><a href="#Redis的悲观锁和乐观锁" class="headerlink" title="Redis的悲观锁和乐观锁"></a>Redis的悲观锁和乐观锁</h2><p><strong>悲观锁</strong></p>
+<blockquote>
+<p>认为什么时候都会出问题 ,做什么都会加锁</p>
+</blockquote>
+<p><strong>乐观锁</strong> (watch  可以实现乐观锁)</p>
+<blockquote>
+<p>更新数据的时候去判断下,在此期间是否修改过数据  比较version</p>
+</blockquote>
+<h2 id="Redis实现分布式锁"><a href="#Redis实现分布式锁" class="headerlink" title="Redis实现分布式锁"></a>Redis实现分布式锁</h2><ul>
+<li>利用Redis的<strong>setnx命令</strong>。此命令同样是原子性操作，只有在key不存在的情况下，才能set成功。</li>
+</ul>
+<p><img src="https://gitee.com/Anke1938/image/raw/master/img/20200401180402.jpg" alt="QQ截图20200401180346"></p>
+<ul>
+<li>缺陷:容器产生死锁,并且 setnx和expire(设置超时时间)不是原子操作，当setnx后，redis宕掉，则此锁无法释放掉</li>
+</ul>
+<h2 id="Redis在Springboot2-x之后-原来使用的jedis被替换为了lettuce"><a href="#Redis在Springboot2-x之后-原来使用的jedis被替换为了lettuce" class="headerlink" title="Redis在Springboot2.x之后,原来使用的jedis被替换为了lettuce"></a>Redis在Springboot2.x之后,原来使用的jedis被替换为了lettuce</h2><ul>
+<li>jedis:直连,不安全,避免不安全使用连接池,BIO</li>
+<li>lettuce:采用的netty,实例多线程中共享,更安全,像NIO</li>
+</ul>
+<h2 id="Redis-持久化"><a href="#Redis-持久化" class="headerlink" title="Redis 持久化"></a>Redis 持久化</h2><ul>
+<li>RDB持久化（原理是将Reids在内存中的数据库记录定时 dump到磁盘上的RDB持久化）</li>
+<li>AOF（append only file）持久化（原理是将Reids的操作日志以追加的方式写入文件）</li>
+</ul>
+<p><img src="https://gitee.com/Anke1938/image/raw/master/img/20200401182754.jpg" alt="QQ截图20200401182741"></p>
+<h2 id="AOF与RDB的优缺点"><a href="#AOF与RDB的优缺点" class="headerlink" title="AOF与RDB的优缺点"></a>AOF与RDB的优缺点</h2><ul>
+<li>RDB<ul>
+<li>优点:全量数据快照,文件小,恢复快</li>
+<li>缺点:无法保存最近一次快照之后的数据</li>
+</ul>
+</li>
+<li>AOF<ul>
+<li>优点:可读性高,适合保存增量数据,不易丢失</li>
+<li>缺点:文件体积大,恢复时间长</li>
+</ul>
+</li>
+</ul>
+<h2 id="日志重写解决AOF文件大小不断增加的问题"><a href="#日志重写解决AOF文件大小不断增加的问题" class="headerlink" title="日志重写解决AOF文件大小不断增加的问题"></a>日志重写解决AOF文件大小不断增加的问题</h2><ol>
+<li>调用fork(),创建一个子进程</li>
+<li>子进程把新的AOF写到临时文件,不依赖原文件</li>
+<li>主进程持续将新的变化同时写到内存和原来的AOF中</li>
+<li>住进程获取子进程重写AOF的完成信号,往新的AOF同步增量变动</li>
+<li>使用新的AOF文件替换旧的AOF</li>
+</ol>
+<h2 id="自动触发RDB持久化的方法"><a href="#自动触发RDB持久化的方法" class="headerlink" title="自动触发RDB持久化的方法"></a>自动触发RDB持久化的方法</h2><ol>
+<li>根据redis.conf配置中的  save m n定时触发(BGSAVE)</li>
+<li>主从复制,主节点触发</li>
+<li>Debug Reload</li>
+<li>Shutdown且没有开启AOF</li>
+</ol>
+<h2 id="Redis的订阅发布-做异步队列"><a href="#Redis的订阅发布-做异步队列" class="headerlink" title="Redis的订阅发布(做异步队列)"></a>Redis的订阅发布(做异步队列)</h2><p><img src="https://gitee.com/Anke1938/image/raw/master/img/20200401185051.png" alt="clipboard"></p>
+<ul>
+<li><p>发送者(pub)发送消息,订阅者(sub)接受消息</p>
+</li>
+<li><p>可订阅任意数量的频道</p>
+</li>
+</ul>
+<h2 id="Redis主从复制"><a href="#Redis主从复制" class="headerlink" title="Redis主从复制"></a>Redis主从复制</h2><ul>
+<li><strong>只配置从库,不配置master</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">info replication   <span class="comment">#查看当前库的信息</span></span><br><span class="line"></span><br><span class="line">复制配置文件,修改对应的信息</span><br><span class="line">1.端口</span><br><span class="line">2.pid名称</span><br><span class="line">3.<span class="built_in">log</span>文件名称</span><br><span class="line">4.dump.rdb名称</span><br><span class="line"></span><br><span class="line">SLAVEOF host 6379  <span class="comment"># 命令配置   从节点配置到主节点</span></span><br><span class="line"></span><br><span class="line">修改conf中的配置</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Anke1938/image/raw/master/img/20200401185635.png" alt="clipboard"></p>
+<h2 id="Redis哨兵机制-Redis-Sentinel"><a href="#Redis哨兵机制-Redis-Sentinel" class="headerlink" title="Redis哨兵机制  (Redis Sentinel)"></a>Redis哨兵机制  (Redis Sentinel)</h2><p><strong>解决主从同步Master宕机后的主从切换问题</strong></p>
+<ul>
+<li>监控:	检查运行状态</li>
+<li>提醒:   api通知</li>
+<li>自动故障迁移:   主从切换</li>
+</ul>
+<ol>
+<li><p>配置sentinel.conf文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># sentinel monitor 被监控的名称  host port  1     1代表投票票数</span></span><br><span class="line">sentinel monitor myredis 127.0.0.1 6379 1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-sentinel xxx.conf</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Redis缓存穿透-查不到"><a href="#Redis缓存穿透-查不到" class="headerlink" title="Redis缓存穿透(查不到)"></a>Redis缓存穿透(查不到)</h2><p><strong>缓存穿透是指查询一个一定不存在的数据，由于缓存是不命中时被动写的，并且出于容错考虑，如果从存储层查不到数据则不写入缓存，这将导致这个不存在的数据每次请求都要到存储层去查询，失去了缓存的意义。在流量大时，可能DB就挂掉了，要是有人利用不存在的key频繁攻击的应用，这就是漏洞.</strong></p>
+<ol>
+<li><p><strong>布隆过滤器</strong>:  是一种数据结构,对所有肯能查询的参数以hash形式存储,在控制层进行校验,不符合就丢弃,避免了对底层存储系统的压力</p>
+</li>
+<li><p><strong>缓存空对象</strong>:  数据库查询不到之后,返回空对象,将空对象也缓存起来,设置一个过期时间,之后再访问这个数据将会从缓存中获取</p>
+<p>​</p>
+</li>
+</ol>
+<p>	</p>
+<h2 id="缓存击穿-量太大"><a href="#缓存击穿-量太大" class="headerlink" title="缓存击穿(量太大)"></a>缓存击穿(量太大)</h2><p><strong>一个key查询并发巨大,当key失效瞬间,击穿了缓存层,直接访问数据库</strong></p>
+<ol>
+<li>设置热点数据不过期</li>
+<li>加互斥锁 :  setnx  分布式锁.保证对于每个key同时只有<strong>一个线程</strong>去查询后端服务,其他线程没有获得分布式锁的权限,因此只能<strong>等待</strong>.</li>
+</ol>
+<h2 id="缓存雪崩-都崩溃"><a href="#缓存雪崩-都崩溃" class="headerlink" title="缓存雪崩 (都崩溃)"></a>缓存雪崩 (都崩溃)</h2><ol>
+<li>redis高可用,异地多活</li>
+<li>限流降级   加锁 限制线程 访问</li>
+<li>数据预热   缓存数据过期时间差异</li>
+</ol>
+<h2 id="Redis内存优化"><a href="#Redis内存优化" class="headerlink" title="Redis内存优化"></a>Redis内存优化</h2><ol>
+<li><p>关闭 Redis 的虚拟内存[VM]功能，即 redis.conf 中 vm-enabled &#x3D; no</p>
+</li>
+<li><p>设置 redis.conf 中 maxmemory ，用于告知 Redis 当使用了多少物理内存后拒绝继续写入的请求，可防止 Redis 性能降低甚至崩溃</p>
+</li>
+<li><p>可为指定的数据类型设置内存使用规则，从而提高对应数据类型的内存使用效率</p>
+</li>
+<li><p>Hash 在 redis.conf 中有以下两个属性，任意一个超出设定值，则会使用 HashMap 存值</p>
+<p>hash-max-zipmap-entires 64 表示当 value 中的 map 数量在 64 个以下时，实际使用 zipmap 存储值</p>
+<p>hash-max-zipmap-value 512 表示当 value 中的 map 每个成员值长度小于 512 字节时，实际使用 zipmap 存储值</p>
+<p>List 在 redis.conf 中也有以下两个属性</p>
+<p>list-max-ziplist-entires 64</p>
+<p>list-max-ziplist-value 512</p>
+<p>在 Redis 的源代码中有一行宏定义 REDIS-SHARED-INTEGERS &#x3D; 10000 ，修改该值可以改变 Redis 存储数值类型的内存开销</p>
+</li>
+</ol>
+<p><img src="https://gitee.com/Anke1938/image/raw/master/img/20200401194147.jpg" alt="QQ截图20200401194120"></p>
+<p><img src="https://gitee.com/Anke1938/image/raw/master/img/20200401194215.jpg" alt="QQ截图20200401194131"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer"><div class="post-widgets">
+    <div
+      class="social-share"
+      
+        data-sites="weibo,qq,wechat,tencent,douban,qzone,linkedin,diandian,facebook,twitter,google"
+      
+      
+        data-wechat-qrcode-title="share.title"
+      
+      
+        data-wechat-qrcode-helper="share.prompt"
+      
+    >
+    </div>
+  </div>
+  <script src="https://lib.baomitu.com/social-share.js/1.0.16/js/social-share.min.js"></script><script src="//sdk.jinrishici.com/v2/browser/jinrishici.js"></script>
+<script>
+  jinrishici.load((result) => {
+    let jrsc = document.getElementById('jrsc');
+    const data = result.data;
+    let author = data.origin.author;
+    let title = '《' + data.origin.title + '》';
+    let content = data.content.substr(0, data.content.length - 1);
+    let dynasty = data.origin.dynasty.substr(0, data.origin.dynasty.length - 1);
+    jrsc.innerText = content + ' @ ' + dynasty + '·' + author + title;
+  });
+</script>
+<div style="text-align: center"><span id="jrsc" >正在加载今日诗词....</span></div>
+
+          <div class="post-tags">
+              <a href="/tags/redis/" rel="tag"># redis</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/04/01/JVM%E4%BD%A0%E8%A6%81%E4%BA%86%E8%A7%A3%E7%9A%84%E4%BA%8B%E6%83%85/" rel="prev" title="JVM你要了解的事情">
+                  <i class="fa fa-chevron-left"></i> JVM你要了解的事情
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/04/02/ThreadLocal/" rel="next" title="ThreadLocal">
+                  ThreadLocal <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Tree</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">185k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">5:09</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div><script color="0,0,255" opacity="0.5" zIndex="-1" count="99" src="https://lib.baomitu.com/canvas-nest.js/1.0.1/canvas-nest.js"></script>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pangu/4.0.7/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

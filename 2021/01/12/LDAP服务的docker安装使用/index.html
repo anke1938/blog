@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dev8888.cn","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.13.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="LDAP服务的docker安装使用12345678910111213141516# 创建并进入映射目录  mkdir -p &#x2F;usr&#x2F;local&#x2F;ldap &amp;&amp; cd &#x2F;usr&#x2F;local&#x2F;ldap# 启动容器docker run \-d \-p 389:389 \-p 636:636 \-v &#x2F;usr&#x2F;local&#x2F;ldap:&#x2F;usr&#x2F;local&#x2F;ldap \--name ldap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LDAP服务的docker安装使用">
+<meta property="og:url" content="http://dev8888.cn/2021/01/12/LDAP%E6%9C%8D%E5%8A%A1%E7%9A%84docker%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="Tree&#39;s Technology">
+<meta property="og:description" content="LDAP服务的docker安装使用12345678910111213141516# 创建并进入映射目录  mkdir -p &#x2F;usr&#x2F;local&#x2F;ldap &amp;&amp; cd &#x2F;usr&#x2F;local&#x2F;ldap# 启动容器docker run \-d \-p 389:389 \-p 636:636 \-v &#x2F;usr&#x2F;local&#x2F;ldap:&#x2F;usr&#x2F;local&#x2F;ldap \--name ldap">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-01-12T11:31:20.000Z">
+<meta property="article:modified_time" content="2022-11-14T15:06:02.442Z">
+<meta property="article:author" content="Tree">
+<meta property="article:tag" content="LDAP">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dev8888.cn/2021/01/12/LDAP%E6%9C%8D%E5%8A%A1%E7%9A%84docker%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://dev8888.cn/2021/01/12/LDAP%E6%9C%8D%E5%8A%A1%E7%9A%84docker%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/","path":"2021/01/12/LDAP服务的docker安装使用/","title":"LDAP服务的docker安装使用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>LDAP服务的docker安装使用 | Tree's Technology</title>
+  
+
+
+
+
+
+<link rel="stylesheet" href="https://lib.baomitu.com/social-share.js/1.0.16/css/share.min.css">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Tree's Technology</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录代码技术</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#LDAP%E6%9C%8D%E5%8A%A1%E7%9A%84docker%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">LDAP服务的docker安装使用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E5%AE%89%E8%A3%85%E7%9A%84LDAP%E6%9C%8D%E5%8A%A1%E6%98%AF%E5%90%A6%E5%8F%AF%E7%94%A8"><span class="nav-number">1.0.1.</span> <span class="nav-text">验证安装的LDAP服务是否可用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%90%AD%E5%BB%BA-phpLDAPadmin"><span class="nav-number">1.0.2.</span> <span class="nav-text">搭建 phpLDAPadmin</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AE-8081%E7%AB%AF%E5%8F%A3"><span class="nav-number">1.0.3.</span> <span class="nav-text">浏览器访问 8081端口</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%8E%A5%E4%B8%8B%E6%9D%A5%E9%9C%80%E8%A6%81%E5%9C%A8%E7%95%8C%E9%9D%A2%E4%B8%AD%E9%85%8D%E7%BD%AEorganization-x2F-user"><span class="nav-number">1.0.4.</span> <span class="nav-text">接下来需要在界面中配置organization &#x2F; user</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LDAP-%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A"><span class="nav-number"></span> <span class="nav-text">LDAP 名词解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gitea%E9%85%8D%E7%BD%AE"><span class="nav-number"></span> <span class="nav-text">Gitea配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Jenkins%E9%85%8D%E7%BD%AE-%E4%B8%8D%E8%83%BD%E5%92%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E7%94%A8%E6%88%B7%E5%85%B1%E5%AD%98-%E4%BD%BF%E7%94%A8%E4%B9%8B%E5%90%8E%E4%B9%8B%E5%89%8D%E7%9A%84%E7%94%A8%E6%88%B7%E4%B8%8D%E8%83%BD%E7%99%BB%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">Jenkins配置  不能和数据库用户共存(使用之后之前的用户不能登录)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Harbor-%E5%8F%AF%E4%BB%A5%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">Harbor  可以配置</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#Grafana-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">Grafana  修改配置文件</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Yapi-%E9%9C%80%E8%A6%81%E4%BF%AE%E6%94%B9docker-%E5%90%AF%E5%8A%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">Yapi 需要修改docker 启动配置</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Kuboard-v3%E7%89%88%E6%9C%AC-%E6%94%AF%E6%8C%81-%E6%88%91%E4%BB%AC%E4%BD%BF%E7%94%A8%E7%9A%84%E6%98%AFv2%E7%89%88%E6%9C%AC"><span class="nav-number">2.0.0.3.</span> <span class="nav-text">Kuboard v3版本 支持,我们使用的是v2版本</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Zentao-%E9%9C%80%E8%A6%81%E4%B8%93%E4%B8%9A%E7%89%88%E6%94%AF%E6%8C%81-%E5%BC%80%E6%BA%90%E7%89%88%E6%8F%92%E4%BB%B6%E6%94%AF%E6%8C%81%E5%88%B07-3%E7%89%88%E6%9C%AC"><span class="nav-number">2.0.0.4.</span> <span class="nav-text">Zentao 需要专业版支持 , 开源版插件支持到7.3版本</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Sonarqube-8-0%E7%89%88%E6%9C%AC%E5%90%8E%E4%B8%8D%E6%94%AF%E6%8C%81"><span class="nav-number">2.0.0.5.</span> <span class="nav-text">Sonarqube 8.0版本后不支持</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java%E7%9A%84LDAP%E8%BF%9E%E6%8E%A5%E4%B8%8E%E5%85%B3%E9%94%AE%E6%8E%A5%E5%8F%A3"><span class="nav-number"></span> <span class="nav-text">Java的LDAP连接与关键接口</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#maven"><span class="nav-number">0.0.1.</span> <span class="nav-text">maven</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#application-yml-%E6%96%87%E4%BB%B6%E9%85%8D%E7%BD%AE"><span class="nav-number">0.0.2.</span> <span class="nav-text">application.yml 文件配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AE%9E%E4%BD%93"><span class="nav-number">0.0.3.</span> <span class="nav-text">实体</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#CRUD-%E7%AD%89%E7%AE%80%E5%8D%95%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="nav-number">0.0.4.</span> <span class="nav-text">CRUD 等简单的接口</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E9%99%84%E5%BD%95-%E9%94%99%E8%AF%AF%E7%A0%81"><span class="nav-number">0.0.4.1.</span> <span class="nav-text">附录:  (错误码)</span></a></li></ol></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Tree"
+      src="/uploads/123.jpg">
+  <p class="site-author-name" itemprop="name">Tree</p>
+  <div class="site-description" itemprop="description">一个小站</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/anke1938" title="GitHub → https:&#x2F;&#x2F;gitee.com&#x2F;anke1938" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:anke1938@qq.com" title="E-Mail → mailto:anke1938@qq.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://dev8888.cn/2021/01/12/LDAP%E6%9C%8D%E5%8A%A1%E7%9A%84docker%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/123.jpg">
+      <meta itemprop="name" content="Tree">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tree's Technology">
+      <meta itemprop="description" content="一个小站">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="LDAP服务的docker安装使用 | Tree's Technology">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LDAP服务的docker安装使用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-01-12 19:31:20" itemprop="dateCreated datePublished" datetime="2021-01-12T19:31:20+08:00">2021-01-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-11-14 23:06:02" itemprop="dateModified" datetime="2022-11-14T23:06:02+08:00">2022-11-14</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>14k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>23 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="LDAP服务的docker安装使用"><a href="#LDAP服务的docker安装使用" class="headerlink" title="LDAP服务的docker安装使用"></a>LDAP服务的docker安装使用</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建并进入映射目录  </span></span><br><span class="line"><span class="built_in">mkdir</span> -p /usr/local/ldap &amp;&amp; <span class="built_in">cd</span> /usr/local/ldap</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动容器</span></span><br><span class="line">docker run \</span><br><span class="line">-d \</span><br><span class="line">-p 389:389 \</span><br><span class="line">-p 636:636 \</span><br><span class="line">-v /usr/local/ldap:/usr/local/ldap \</span><br><span class="line">--name ldap \</span><br><span class="line">osixia/openldap:1.3.0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认的配置 可修改  </span></span><br><span class="line">dn dc=example,dc=org</span><br><span class="line">admin admin,dc=example,dc=org</span><br><span class="line">password admin</span><br></pre></td></tr></table></figure>
+
+<h5 id="验证安装的LDAP服务是否可用"><a href="#验证安装的LDAP服务是否可用" class="headerlink" title="验证安装的LDAP服务是否可用"></a>验证安装的LDAP服务是否可用</h5><blockquote>
+<p>主要是admin的用户名和密码</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it ldap ldapsearch -x -H ldap://localhost:389 -b dc=example,dc=org -D <span class="string">&quot;cn=admin,dc=example,dc=org&quot;</span> -w admin</span><br><span class="line"></span><br><span class="line"><span class="comment"># -------&gt;   返回</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># extended LDIF</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># LDAPv3</span></span><br><span class="line"><span class="comment"># base &lt;dc=example,dc=org&gt; with scope subtree</span></span><br><span class="line"><span class="comment"># filter: (objectclass=*)</span></span><br><span class="line"><span class="comment"># requesting: ALL</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># example.org</span></span><br><span class="line">dn: dc=example,dc=org</span><br><span class="line">objectClass: top</span><br><span class="line">objectClass: dcObject</span><br><span class="line">objectClass: organization</span><br><span class="line">o: Example Inc.</span><br><span class="line">dc: example</span><br><span class="line"></span><br><span class="line"><span class="comment"># admin, example.org</span></span><br><span class="line">dn: cn=admin,dc=example,dc=org</span><br><span class="line">objectClass: simpleSecurityObject</span><br><span class="line">objectClass: organizationalRole</span><br><span class="line">cn: admin</span><br><span class="line">description: LDAP administrator</span><br><span class="line">userPassword:: e1NTSEF9SzNrZCtzdjZIY3NLRWdQZVd0VGZITUlXVFVlUUhjaFE=</span><br><span class="line"></span><br><span class="line"><span class="comment"># search result</span></span><br><span class="line">search: 2</span><br><span class="line">result: 0 Success</span><br><span class="line"></span><br><span class="line"><span class="comment"># numResponses: 3</span></span><br><span class="line"><span class="comment"># numEntries: 2</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="搭建-phpLDAPadmin"><a href="#搭建-phpLDAPadmin" class="headerlink" title="搭建 phpLDAPadmin"></a>搭建 phpLDAPadmin</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run -dit \</span><br><span class="line">-p 8081:80 \</span><br><span class="line">--<span class="built_in">link</span> ldap \</span><br><span class="line">--name suiyue_pla \</span><br><span class="line">--<span class="built_in">env</span> PHPLDAPADMIN_HTTPS=<span class="literal">false</span> \</span><br><span class="line">--<span class="built_in">env</span> PHPLDAPADMIN_LDAP_HOSTS=ldap \</span><br><span class="line">--restart always \</span><br><span class="line">--detach osixia/phpldapadmin</span><br></pre></td></tr></table></figure>
+
+<h5 id="浏览器访问-8081端口"><a href="#浏览器访问-8081端口" class="headerlink" title="浏览器访问 8081端口"></a>浏览器访问 8081端口</h5><blockquote>
+<p>用户名:	cn&#x3D;admin,dc&#x3D;example,dc&#x3D;org</p>
+<p>密码:	admin</p>
+</blockquote>
+<h5 id="接下来需要在界面中配置organization-x2F-user"><a href="#接下来需要在界面中配置organization-x2F-user" class="headerlink" title="接下来需要在界面中配置organization &#x2F; user"></a>接下来需要在界面中配置organization &#x2F; user</h5><ul>
+<li>create a child entry</li>
+<li>posix group 是组织     user  account 是用户    够用了</li>
+<li>用户登录使用用户名  密码即可登录</li>
+</ul>
+<h2 id="LDAP-名词解释"><a href="#LDAP-名词解释" class="headerlink" title="LDAP 名词解释"></a>LDAP 名词解释</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">dn - CN, OU, DC 都是 LDAP 连接服务器的端字符串中的区别名称（DN, distinguished   name） </span><br><span class="line">o – organization（组织-公司）</span><br><span class="line">ou – organization unit（组织单元-部门）</span><br><span class="line">c - countryName（国家）</span><br><span class="line">dc - domainComponent（域名）</span><br><span class="line">sn – suer name（真实名称）</span><br><span class="line">cn - common name（常用名称</span><br></pre></td></tr></table></figure>
+
+<h2 id="Gitea配置"><a href="#Gitea配置" class="headerlink" title="Gitea配置"></a>Gitea配置</h2> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1. 配置认证源</span><br><span class="line">2. 认证类型 LDAP (via BindDN)</span><br><span class="line">3. 安全协议  Unencrypted</span><br><span class="line">4. 主机端口  :       xxx:389</span><br><span class="line">5. 绑定一个可以获取所有用户组织的的角色账号</span><br><span class="line">6. **用户搜索基准  cn=nancal,dc=example,dc=org**</span><br><span class="line">7. **用户过滤规则    (&amp;(objectClass=posixAccount)(uid=%s))**</span><br><span class="line">8. 电子邮箱属性    Email</span><br></pre></td></tr></table></figure>
+
+<h3 id="Jenkins配置-不能和数据库用户共存-使用之后之前的用户不能登录"><a href="#Jenkins配置-不能和数据库用户共存-使用之后之前的用户不能登录" class="headerlink" title="Jenkins配置  不能和数据库用户共存(使用之后之前的用户不能登录)"></a>Jenkins配置  不能和数据库用户共存(使用之后之前的用户不能登录)</h3> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. Server :       ldap://xxx.xx:389</span><br><span class="line">2. user  search base :      cn=nancal,dc=example,dc=org</span><br><span class="line">3. user  search  filter :   uid=&#123;0&#125;</span><br><span class="line">4. group search base :   cn=nancal,dc=example,dc=org</span><br><span class="line">5. Manager DN / Password :  管理员的用户名密码</span><br><span class="line">6. Test LDAP setting</span><br></pre></td></tr></table></figure>
+
+<h3 id="Harbor-可以配置"><a href="#Harbor-可以配置" class="headerlink" title="Harbor  可以配置"></a>Harbor  可以配置</h3><blockquote>
+<p>要开启Harbor的ldap认证功能就必须要在安装完，并启动服务后变更一下认证源。如果没有变更，就添加了用户就没有办法去修改配置变更了</p>
+</blockquote>
+<h6 id="Grafana-修改配置文件"><a href="#Grafana-修改配置文件" class="headerlink" title="Grafana  修改配置文件"></a>Grafana  修改配置文件</h6><h6 id="Yapi-需要修改docker-启动配置"><a href="#Yapi-需要修改docker-启动配置" class="headerlink" title="Yapi 需要修改docker 启动配置"></a>Yapi 需要修改docker 启动配置</h6><h6 id="Kuboard-v3版本-支持-我们使用的是v2版本"><a href="#Kuboard-v3版本-支持-我们使用的是v2版本" class="headerlink" title="Kuboard v3版本 支持,我们使用的是v2版本"></a>Kuboard v3版本 支持,我们使用的是v2版本</h6><h6 id="Zentao-需要专业版支持-开源版插件支持到7-3版本"><a href="#Zentao-需要专业版支持-开源版插件支持到7-3版本" class="headerlink" title="Zentao 需要专业版支持 , 开源版插件支持到7.3版本"></a>Zentao 需要专业版支持 , 开源版插件支持到7.3版本</h6><h6 id="Sonarqube-8-0版本后不支持"><a href="#Sonarqube-8-0版本后不支持" class="headerlink" title="Sonarqube 8.0版本后不支持"></a>Sonarqube 8.0版本后不支持</h6><hr>
+<h2 id="Java的LDAP连接与关键接口"><a href="#Java的LDAP连接与关键接口" class="headerlink" title="Java的LDAP连接与关键接口"></a>Java的LDAP连接与关键接口</h2><h5 id="maven"><a href="#maven" class="headerlink" title="maven"></a>maven</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--LDAP--&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-boot-starter-data-ldap&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<h5 id="application-yml-文件配置"><a href="#application-yml-文件配置" class="headerlink" title="application.yml 文件配置"></a>application.yml 文件配置</h5><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">ldap:</span></span><br><span class="line">    <span class="attr">urls:</span> <span class="string">ldap://47.xxx.37.xx:389</span></span><br><span class="line">    <span class="attr">base:</span> <span class="string">dc=example,dc=org</span></span><br><span class="line">    <span class="attr">username:</span> <span class="string">cn=admin,dc=example,dc=org</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">admin</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="实体"><a href="#实体" class="headerlink" title="实体"></a>实体</h5><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line"><span class="comment">// 实体</span></span><br><span class="line"><span class="meta">@Cn(<span class="string">&quot;LDAP用户&quot;</span>)</span></span><br><span class="line"><span class="meta">@Document</span></span><br><span class="line"><span class="meta">@DbEntityGroup(<span class="string">&quot;corp&quot;</span>)</span></span><br><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">LDAPUser</span>(</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Cn(<span class="string">&quot;用户姓名&quot;</span>)</span></span><br><span class="line">    <span class="meta">@Attribute(name = <span class="string">&quot;cn&quot;</span>)</span></span><br><span class="line">    <span class="keyword">var</span> userName: String = <span class="string">&quot;&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Cn(<span class="string">&quot;真实姓名&quot;</span>)</span></span><br><span class="line">    <span class="meta">@Attribute(name = <span class="string">&quot;sn&quot;</span>)</span></span><br><span class="line">    <span class="keyword">var</span> realName: String = <span class="string">&quot;&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Cn(<span class="string">&quot;密码&quot;</span>)</span></span><br><span class="line">    <span class="meta">@Attribute(name = <span class="string">&quot;userpassword&quot;</span>)</span></span><br><span class="line">    <span class="keyword">var</span> userPassword:String = <span class="string">&quot;&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Cn(<span class="string">&quot;uidnumber&quot;</span>)</span></span><br><span class="line">    <span class="meta">@Attribute(name = <span class="string">&quot;uidnumber&quot;</span>)</span></span><br><span class="line">    <span class="keyword">var</span> uidnumber:String = <span class="string">&quot;&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Cn(<span class="string">&quot;gidnumber&quot;</span>)</span></span><br><span class="line">    <span class="meta">@Attribute(name = <span class="string">&quot;gidnumber&quot;</span>)</span></span><br><span class="line">    <span class="keyword">var</span> gidnumber:String = <span class="string">&quot;&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Cn(<span class="string">&quot;uid&quot;</span>)</span></span><br><span class="line">    <span class="meta">@Attribute(name = <span class="string">&quot;uid&quot;</span>)</span></span><br><span class="line">    <span class="keyword">var</span> uid:String = <span class="string">&quot;&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Cn(<span class="string">&quot;homedirectory&quot;</span>)</span></span><br><span class="line">    <span class="meta">@Attribute(name = <span class="string">&quot;homedirectory&quot;</span>)</span></span><br><span class="line">    <span class="keyword">var</span> homedirectory:String = <span class="string">&quot;&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">//可选信息</span></span><br><span class="line">    <span class="meta">@Cn(<span class="string">&quot;性别&quot;</span>)</span></span><br><span class="line">    <span class="meta">@Attribute(name = <span class="string">&quot;sex&quot;</span>)</span></span><br><span class="line">    <span class="keyword">var</span> sex: String = <span class="string">&quot;&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Cn(<span class="string">&quot;手机号&quot;</span>)</span></span><br><span class="line">    <span class="meta">@Attribute(name = <span class="string">&quot;mobile&quot;</span>)</span></span><br><span class="line">    <span class="keyword">var</span> mobile: String = <span class="string">&quot;&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Cn(<span class="string">&quot;邮件&quot;</span>)</span></span><br><span class="line">    <span class="meta">@Attribute(name = <span class="string">&quot;email&quot;</span>)</span></span><br><span class="line">    <span class="keyword">var</span> email: String = <span class="string">&quot;&quot;</span>,</span><br><span class="line"></span><br><span class="line">) : BaseEntity(), IMongoDocument</span><br></pre></td></tr></table></figure>
+
+<h5 id="CRUD-等简单的接口"><a href="#CRUD-等简单的接口" class="headerlink" title="CRUD 等简单的接口"></a>CRUD 等简单的接口</h5><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> xx.web.corp</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by CodeGenerator @2020-04-24 11:17:43</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Api(description = <span class="string">&quot;Corporation&quot;</span>, tags = arrayOf(<span class="string">&quot;Corporation&quot;</span>))</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@JsonpMapping(<span class="string">&quot;/open/ldap&quot;</span>)</span></span><br><span class="line"><span class="meta">@OpenAction</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LDAP_Controller</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(<span class="string">&quot;\$&#123;spring.ldap.base&#125;&quot;</span>)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> base: String? = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(<span class="string">&quot;\$&#123;spring.ldap.urls&#125;&quot;</span>)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> url: String? = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(<span class="string">&quot;\$&#123;spring.ldap.username&#125;&quot;</span>)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> dn: String? = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(<span class="string">&quot;\$&#123;spring.ldap.password&#125;&quot;</span>)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> pwd: String? = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">var</span> ldapTemplate:LdapTemplate?=<span class="literal">null</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonpMapping(<span class="string">&quot;/allUserName&quot;</span>)</span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">getAllUserName</span><span class="params">()</span></span>:Any&#123;</span><br><span class="line">        <span class="keyword">val</span> res = ldapTemplate!!.search(</span><br><span class="line">            query().<span class="keyword">where</span>(<span class="string">&quot;objectclass&quot;</span>).`<span class="keyword">is</span>`(<span class="string">&quot;person&quot;</span>),</span><br><span class="line">            AttributesMapper &#123; attrs: Attributes -&gt;</span><br><span class="line">                attrs[<span class="string">&quot;cn&quot;</span>].<span class="keyword">get</span>() <span class="keyword">as</span> String</span><br><span class="line">            &#125; <span class="keyword">as</span> AttributesMapper&lt;*&gt;)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonpMapping(<span class="string">&quot;/allUser&quot;</span>)</span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">getUser</span><span class="params">()</span></span>: ApiResult&lt;List&lt;LDAPUser&gt;&gt; &#123;</span><br><span class="line">        <span class="keyword">val</span> <span class="keyword">data</span> = ldapTemplate!!.search(</span><br><span class="line">            query()</span><br><span class="line">                .<span class="keyword">where</span>(<span class="string">&quot;objectclass&quot;</span>).`<span class="keyword">is</span>`(<span class="string">&quot;person&quot;</span>), LdapUserMapper()</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ApiResult.of(<span class="keyword">data</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//在ldap中，有两个&quot;查询&quot;概念，search和lookup。search是ldaptemplate对每一个entry进行查询，lookup是通过DN直接找到某个条目。</span></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据DN查询指定人员信息</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> dn    e.g:   如果用户在 cn=nancal,dc=example,dc=org下</span></span><br><span class="line"><span class="comment">     *                      具体到某一个人   需要传入的是  cn=c y,cn=nancal</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@JsonpMapping(<span class="string">&quot;/userByDn&quot;</span>)</span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">findPersonWithDn</span><span class="params">(dn: <span class="type">String</span>)</span></span>:ApiResult&lt;LDAPUser&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> ApiResult.of(ldapTemplate!!.lookup(dn, LdapUserMapper()))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonpMapping(<span class="string">&quot;/checkPassword&quot;</span>)</span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">check</span><span class="params">(username:<span class="type">String</span>,password:<span class="type">String</span>)</span></span>:JsonResult&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">val</span> filter = AndFilter()</span><br><span class="line">        filter.and(EqualsFilter(<span class="string">&quot;objectclass&quot;</span>, <span class="string">&quot;person&quot;</span>)).and(EqualsFilter(<span class="string">&quot;cn&quot;</span>, username))</span><br><span class="line">        <span class="keyword">val</span> flag = ldapTemplate!!.authenticate(DistinguishedName.EMPTY_PATH, filter.toString(), password)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (flag)&#123;</span><br><span class="line">            println(<span class="string">&quot;用户:<span class="variable">$username</span> 验证密码通过&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> JsonResult()</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> JsonResult(<span class="string">&quot;密码错误,请重新输入&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonpMapping(<span class="string">&quot;/user/add&quot;</span>)</span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">addUser</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">        <span class="meta">@JsonModel</span> user:<span class="type">LDAPUser</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">        dept:<span class="type">String</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">    )</span></span>:JsonResult&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">val</span> ocAttr = BasicAttribute(<span class="string">&quot;objectclass&quot;</span>)</span><br><span class="line"></span><br><span class="line">        ocAttr.add(<span class="string">&quot;top&quot;</span>);</span><br><span class="line">        ocAttr.add(<span class="string">&quot;person&quot;</span>);</span><br><span class="line">        ocAttr.add(<span class="string">&quot;inetOrgPerson&quot;</span>);</span><br><span class="line">        ocAttr.add(<span class="string">&quot;organizationalPerson&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">val</span> attrs: Attributes = BasicAttributes()</span><br><span class="line"></span><br><span class="line">        attrs.put(ocAttr);</span><br><span class="line">        attrs.put(<span class="string">&quot;cn&quot;</span>, user.userName);</span><br><span class="line">        attrs.put(<span class="string">&quot;sn&quot;</span>, user.realName);</span><br><span class="line">        attrs.put(<span class="string">&quot;displayName&quot;</span>, user.userName);</span><br><span class="line">        attrs.put(<span class="string">&quot;mail&quot;</span>, user.email);</span><br><span class="line">        attrs.put(<span class="string">&quot;mobile&quot;</span>, user.mobile);</span><br><span class="line">        attrs.put(<span class="string">&quot;userPassword&quot;</span>, user.userPassword)</span><br><span class="line"></span><br><span class="line">        ldapTemplate!!.bind(<span class="string">&quot;cn=<span class="subst">$&#123;user.userName&#125;</span>,cn=<span class="variable">$dept</span>&quot;</span>,<span class="literal">null</span>,attrs)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> JsonResult()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//username 不可修改</span></span><br><span class="line">    <span class="meta">@JsonpMapping(<span class="string">&quot;/user/update&quot;</span>)</span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">update</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">        <span class="meta">@JsonModel</span> user:<span class="type">LDAPUser</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">        dept:<span class="type">String</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">    )</span></span>:JsonResult&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ldapTemplate!!.modifyAttributes(<span class="string">&quot;cn=<span class="subst">$&#123;user.userName&#125;</span>,cn=<span class="variable">$dept</span>&quot;</span>, arrayOf(</span><br><span class="line">                ModificationItem(DirContext.REPLACE_ATTRIBUTE, BasicAttribute(<span class="string">&quot;sn&quot;</span>, user.realName)),</span><br><span class="line">                ModificationItem(DirContext.REPLACE_ATTRIBUTE, BasicAttribute(<span class="string">&quot;mail&quot;</span>, user.email)),</span><br><span class="line">                ModificationItem(DirContext.REPLACE_ATTRIBUTE, BasicAttribute(<span class="string">&quot;mobile&quot;</span>, user.mobile)),</span><br><span class="line">                ModificationItem(DirContext.REPLACE_ATTRIBUTE, BasicAttribute(<span class="string">&quot;userPassword&quot;</span>, user.userPassword))</span><br><span class="line">            ))</span><br><span class="line">        &#125;<span class="keyword">catch</span> (e:Exception)&#123;</span><br><span class="line">            <span class="keyword">throw</span> RuntimeException(<span class="string">&quot;修改失败,请重试: <span class="subst">$&#123;e.printStackTrace()&#125;</span>&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> JsonResult()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonpMapping(<span class="string">&quot;/user/delete&quot;</span>)</span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">delete</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">        name: <span class="type">String</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">        dept:<span class="type">String</span></span></span></span><br><span class="line"><span class="params"><span class="function">    )</span></span>:JsonResult&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ldapTemplate!!.unbind(<span class="string">&quot;cn=<span class="subst">$&#123;name&#125;</span>,cn=<span class="variable">$dept</span>&quot;</span>)</span><br><span class="line">        &#125; <span class="keyword">catch</span> (e: Exception) &#123;</span><br><span class="line">            <span class="keyword">throw</span> RuntimeException(<span class="string">&quot;删除用户失败,请确认后重试&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> JsonResult()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">LdapUserMapper</span> : <span class="type">AttributesMapper</span>&lt;<span class="type">LDAPUser</span>&gt; &#123;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Throws(NamingException::class)</span></span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">mapFromAttributes</span><span class="params">(attrs: <span class="type">Attributes</span>)</span></span>: LDAPUser &#123;</span><br><span class="line">            <span class="keyword">val</span> ldapUser = LDAPUser()</span><br><span class="line">            <span class="keyword">try</span>&#123;</span><br><span class="line">                ldapUser.userName = attrs[<span class="string">&quot;cn&quot;</span>].<span class="keyword">get</span>() <span class="keyword">as</span> String</span><br><span class="line">                ldapUser.realName = attrs[<span class="string">&quot;sn&quot;</span>].<span class="keyword">get</span>() <span class="keyword">as</span> String</span><br><span class="line"></span><br><span class="line">                <span class="keyword">val</span> bytes = attrs[<span class="string">&quot;userPassword&quot;</span>].<span class="keyword">get</span>() <span class="keyword">as</span> ByteArray</span><br><span class="line"></span><br><span class="line">                ldapUser.userPassword = String(bytes).replace(<span class="string">&quot;&#123;MD5&#125;&quot;</span>,<span class="string">&quot;&quot;</span>)</span><br><span class="line"></span><br><span class="line">                ldapUser.gidnumber = attrs[<span class="string">&quot;gidnumber&quot;</span>].<span class="keyword">get</span>() <span class="keyword">as</span> String</span><br><span class="line">                ldapUser.uidnumber = attrs[<span class="string">&quot;uidnumber&quot;</span>].<span class="keyword">get</span>() <span class="keyword">as</span> String</span><br><span class="line">                ldapUser.uid = attrs[<span class="string">&quot;uid&quot;</span>].<span class="keyword">get</span>() <span class="keyword">as</span> String</span><br><span class="line">            &#125;<span class="keyword">catch</span> (e:Exception)&#123;</span><br><span class="line">                <span class="keyword">throw</span> RuntimeException(<span class="string">&quot;用户查询错误,请检查对应的dn是否正确&quot;</span>)</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> ldapUser</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h6 id="附录-错误码"><a href="#附录-错误码" class="headerlink" title="附录:  (错误码)"></a>附录:  (错误码)</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br></pre></td><td class="code"><pre><span class="line">LDAP_SUCCESS = 0 //成功</span><br><span class="line"></span><br><span class="line">LDAP_OPERATIONS_ERROR = 1 //操作错误</span><br><span class="line"></span><br><span class="line">LDAP_PROTOCOL_ERROR = 2 //协议错误</span><br><span class="line"></span><br><span class="line">LDAP_TIME_LIMIT_EXCEEDED = 3 //超过最大时间限制</span><br><span class="line"></span><br><span class="line">LDAP_SIZE_LIMIT_EXCEEDED = 4 //超过最大返回条目数</span><br><span class="line"></span><br><span class="line">LDAP_COMPARE_FALSE = 5 //比较不匹配</span><br><span class="line"></span><br><span class="line">LDAP_COMPARE_TRUE = 6 //比较匹配</span><br><span class="line"></span><br><span class="line">LDAP_AUTH_METHOD_NOT_SUPPORTED = 7 //认证方法未被支持</span><br><span class="line"></span><br><span class="line">LDAP_STRONG_AUTH_REQUIRED = 8 //需要强认证</span><br><span class="line"></span><br><span class="line">LDAP_PARTIAL_RESULTS = 9 //null</span><br><span class="line"></span><br><span class="line">LDAP_REFERRAL = 10 //Referral</span><br><span class="line"></span><br><span class="line">LDAP_ADMIN_LIMIT_EXCEEDED = 11 //超出管理员权限</span><br><span class="line"></span><br><span class="line">LDAP_UNAVAILABLE_CRITICAL_EXTENSION = 12 //Critical扩展无效</span><br><span class="line"></span><br><span class="line">LDAP_CONFIDENTIALITY_REQUIRED = 13 //需要Confidentiality</span><br><span class="line"></span><br><span class="line">LDAP_SASL_BIND_IN_PROGRESS = 14 //需要SASL绑定</span><br><span class="line"></span><br><span class="line">LDAP_NO_SUCH_ATTRIBUTE = 16 //未找到该属性</span><br><span class="line"></span><br><span class="line">LDAP_UNDEFINED_ATTRIBUTE_TYPE = 17 //未定义的属性类型</span><br><span class="line"></span><br><span class="line">LDAP_INAPPROPRIATE_MATCHING = 18 //不适当的匹配</span><br><span class="line"></span><br><span class="line">LDAP_CONSTRAINT_VIOLATION = 19 //约束冲突</span><br><span class="line"></span><br><span class="line">LDAP_ATTRIBUTE_OR_value_EXISTS = 20 //属性或值已存在</span><br><span class="line"></span><br><span class="line">LDAP_INVALID_ATTRIBUTE_SYNTAX = 21 //无效的属性语法</span><br><span class="line"></span><br><span class="line">LDAP_NO_SUCH_OBJECT = 32 //未找到该对象</span><br><span class="line"></span><br><span class="line">LDAP_ALIAS_PROBLEM = 33 //别名有问题</span><br><span class="line"></span><br><span class="line">LDAP_INVALID_DN_SYNTAX = 34 //无效的DN语法</span><br><span class="line"></span><br><span class="line">LDAP_IS_LEAF = 35 //null</span><br><span class="line"></span><br><span class="line">LDAP_ALIAS_DEREFERENCING_PROBLEM = 36 //Dereference别名有问题</span><br><span class="line"></span><br><span class="line">LDAP_INAPPROPRIATE_AUTHENTICATION = 48 //不适当的认证</span><br><span class="line"></span><br><span class="line">LDAP_INVALID_CREDENTIALS = 49 //无效的Credential</span><br><span class="line"></span><br><span class="line">LDAP_INSUFFICIENT_ACCESS_RIGHTS = 50 //访问权限不够</span><br><span class="line"></span><br><span class="line">LDAP_BUSY = 51 //遇忙</span><br><span class="line"></span><br><span class="line">LDAP_UNAVAILABLE = 52 //无效</span><br><span class="line"></span><br><span class="line">LDAP_UNWILLING_TO_PERform = 53 //意外问题</span><br><span class="line"></span><br><span class="line">LDAP_LOOP_DETECT = 54 //发现死循环</span><br><span class="line"></span><br><span class="line">LDAP_NAMING_VIOLATION = 64 //命名冲突</span><br><span class="line"></span><br><span class="line">LDAP_OBJECT_CLASS_VIOLATION = 65 //对象类冲突</span><br><span class="line"></span><br><span class="line">LDAP_NOT_ALLOWED_ON_NON_LEAF = 66 //不允许在非叶结点执行此操作</span><br><span class="line"></span><br><span class="line">LDAP_NOT_ALLOWED_ON_RDN = 67 //不允许对RDN执行此操作</span><br><span class="line"></span><br><span class="line">LDAP_ENTRY_ALREADY_EXISTS = 68 //Entry已存在</span><br><span class="line"></span><br><span class="line">LDAP_OBJECT_CLASS_MODS_PROHIBITED = 69 //禁止更改对象类</span><br><span class="line"></span><br><span class="line">LDAP_AFFECTS_MULTIPLE_DSAS = 71 //null</span><br><span class="line"></span><br><span class="line">LDAP_OTHER = 80 //其它</span><br><span class="line"></span><br><span class="line">再来一份十六进制的，大家对照吧。</span><br><span class="line"></span><br><span class="line">下面是winldap.h文件中的定义的十六进制错误码，我给其中的绝大部分加上了从活动目录的书上看的汉语说明，。</span><br><span class="line"></span><br><span class="line">typedef enum</span><br><span class="line"></span><br><span class="line">Unknown macro: &#123;</span><br><span class="line"></span><br><span class="line">LDAP_SUCCESS = 0x00,//操作成功</span><br><span class="line"></span><br><span class="line">LDAP_OPERATIONS_ERROR = 0x01,//一个未指定的错误发生在处理LDAP请求的服务器上</span><br><span class="line"></span><br><span class="line">LDAP_PROTOCOL_ERROR = 0x02,//服务器接受到一个没有正确格式化或顺序出错的包</span><br><span class="line"></span><br><span class="line">LDAP_TIMELIMIT_EXCEEDED = 0x03,//操作上指定的时间限制被超出。这不同于服务器没有及时响应时的客户方检测到的超时错误</span><br><span class="line"></span><br><span class="line">LDAP_SIZELIMIT_EXCEEDED = 0x04,//搜索返回的项数超过了管理限制或请求限制</span><br><span class="line"></span><br><span class="line">LDAP_COMPARE_FALSE = 0x05,//LDAP比较函数(例如ldap_compare())返回FALSE</span><br><span class="line"></span><br><span class="line">LDAP_COMPARE_TRUE = 0x06,//LDAP比较函数(例如ldap_compare())返回TRUE</span><br><span class="line"></span><br><span class="line">LDAP_AUTH_METHOD_NOT_SUPPORTED = 0x07,//绑定(bind)操作中(例如ldap_bind())请求的认证方法不被服务器支持。如果你使用一个非微软LDAP客户与活动目录通信，这种情况可能发生</span><br><span class="line"></span><br><span class="line">LDAP_STRONG_AUTH_REQUIRED = 0x08,//服务器要求一个字符串认证方法而不是一个简单口令</span><br><span class="line"></span><br><span class="line">LDAP_REFERRAL_V2 = 0x09,//搜索结果包含LDAPv2引用或者一个部分结果集</span><br><span class="line"></span><br><span class="line">LDAP_PARTIAL_RESULTS = 0x09,</span><br><span class="line"></span><br><span class="line">LDAP_REFERRAL = 0x0a,//请求操作必须由另一个拥有适当的命名上下文备份的服务器处理</span><br><span class="line"></span><br><span class="line">LDAP_ADMIN_LIMIT_EXCEEDED = 0x0b,//管理限制被超出。例如，搜索操作花费的时间超出了服务器所允许的最大时间</span><br><span class="line"></span><br><span class="line">LDAP_UNAVAILABLE_CRIT_EXTENSION = 0x0c,//客户请求一个LDAP扩展并且指示该扩展是关键的，但是服务器并不支持扩展</span><br><span class="line"></span><br><span class="line">LDAP_CONFIDENTIALITY_REQUIRED = 0x0d,//操作要求某种级别的加密</span><br><span class="line"></span><br><span class="line">LDAP_SASL_BIND_IN_PROGRESS = 0x0e,//当一个SASL绑定(bind)已经在客户处理过程中时，请求一个绑定(bind)操作</span><br><span class="line"></span><br><span class="line">LDAP_NO_SUCH_ATTRIBUTE = 0x10,//客户尝试修改或者删除一个并不存在的项的一个属性</span><br><span class="line"></span><br><span class="line">LDAP_UNDEFINED_TYPE = 0x11,//未定义的类型</span><br><span class="line"></span><br><span class="line">LDAP_INAPPROPRIATE_MATCHING = 0x12,//提供的匹配规则对搜索不合适或者对于属性不合适</span><br><span class="line"></span><br><span class="line">LDAP_CONSTRAINT_VIOLATION = 0x13,//客户请求一个将违背目录中语义约束的操作。一个经常的原因是不合适的改变了模式--例如当添加一个新类时提供了一个重复的OID(对象识别符)</span><br><span class="line"></span><br><span class="line">LDAP_ATTRIBUTE_OR_value_EXISTS = 0x14,//客户尝试添加一个已经存在的属性或值</span><br><span class="line"></span><br><span class="line">LDAP_INVALID_SYNTAX = 0x15,//搜索过滤器的语法无效</span><br><span class="line"></span><br><span class="line">LDAP_NO_SUCH_OBJECT = 0x20,//客户尝试或者删除一个在目录中并不存在的项</span><br><span class="line"></span><br><span class="line">LDAP_ALIAS_PROBLEM = 0x21,//服务器在处理别名时遇到了一个错误</span><br><span class="line"></span><br><span class="line">LDAP_INVALID_DN_SYNTAX = 0x22,//请求中指定的可区别名字的格式无效</span><br><span class="line"></span><br><span class="line">LDAP_IS_LEAF = 0x23,//函数中指定的项是目录树中的一个叶子项</span><br><span class="line"></span><br><span class="line">LDAP_ALIAS_DEREF_PROBLEM = 0x24,//在解除对一个别名的引用时服务器遇到了一个错误。例如，目的项并不存在</span><br><span class="line"></span><br><span class="line">LDAP_INAPPROPRIATE_AUTH = 0x30,//认证级别对于操作不足</span><br><span class="line"></span><br><span class="line">LDAP_INVALID_CREDENTIALS = 0x31,//绑定(bind)请求中提供的证书是无效的--例如一个无效的口令</span><br><span class="line"></span><br><span class="line">LDAP_INSUFFICIENT_RIGHTS = 0x32,//没有执行该操作所需的足够的访问权限</span><br><span class="line"></span><br><span class="line">LDAP_BUSY = 0x33,//服务器太忙碌而无法服务该请求。稍后重新尝试</span><br><span class="line"></span><br><span class="line">LDAP_UNAVAILABLE = 0x34,//目录服务暂不可用。稍后重新尝试</span><br><span class="line"></span><br><span class="line">LDAP_UNWILLING_TO_PERform = 0x35,//由于管理策略约束方面的原因，服务器将不支持该操作--例如，如果在模式修改没有被允许或者没有连接到模式管理器的情况下，试图修改该模式</span><br><span class="line"></span><br><span class="line">LDAP_LOOP_DETECT = 0x36,//在追踪引用的过程中，客户引用到它以前已经引用的服务器</span><br><span class="line"></span><br><span class="line">LDAP_SORT_CONTROL_MISSING = 0x3C,</span><br><span class="line"></span><br><span class="line">LDAP_OFFSET_RANGE_ERROR = 0x3D,</span><br><span class="line"></span><br><span class="line">LDAP_NAMING_VIOLATION = 0x40,//客户指定了一个不正确的对象的可区别名字</span><br><span class="line"></span><br><span class="line">LDAP_OBJECT_CLASS_VIOLATION = 0x41,//操作违背了类定义中定义的语义规则</span><br><span class="line"></span><br><span class="line">LDAP_NOT_ALLOWED_ON_NONLEAF = 0x42,//所请求的操作只可能在一个叶子对象(非容器)上执行</span><br><span class="line"></span><br><span class="line">LDAP_NOT_ALLOWED_ON_RDN = 0x43,//在相对可区别名字上不允许该操作</span><br><span class="line"></span><br><span class="line">LDAP_ALREADY_EXISTS = 0x44,//客户试图添加一个已经存在的对象</span><br><span class="line"></span><br><span class="line">LDAP_NO_OBJECT_CLASS_MODS = 0x45,//客户试图通过改变一个对象的objectClass属性来修改对象的类</span><br><span class="line"></span><br><span class="line">LDAP_RESULTS_TOO_LARGE = 0x46,//搜索操作的结果集太大，服务器无法处理</span><br><span class="line"></span><br><span class="line">LDAP_AFFECTS_MULTIPLE_DSAS = 0x47,//所请求的操作将影响多个DSA--例如，在一个子树包含一个下级引用，该引用指向另一个命名上下文的情况下，删除该子树将影响多个DSA(目录服务器代理)</span><br><span class="line"></span><br><span class="line">LDAP_VIRTUAL_LIST_VIEW_ERROR = 0x4c,</span><br><span class="line"></span><br><span class="line">LDAP_OTHER = 0x50,//发生了一些其他的LDAP错误</span><br><span class="line"></span><br><span class="line">LDAP_SERVER_DOWN = 0x51,//LDAP服务器已关闭</span><br><span class="line"></span><br><span class="line">LDAP_LOCAL_ERROR = 0x52,//客户发生了其他一些未指定的错误</span><br><span class="line"></span><br><span class="line">LDAP_ENCODING_ERROR = 0x53,//在将一个LDAP请求编码为ASN.1的过程中发生了一个错误</span><br><span class="line"></span><br><span class="line">LDAP_DECODING_ERROR = 0x54,//从服务器接受到的ASN.1编码的数据是无效的</span><br><span class="line"></span><br><span class="line">LDAP_TIMEOUT = 0x55,//在指定的时间内服务器不能响应客户</span><br><span class="line"></span><br><span class="line">LDAP_AUTH_UNKNOWN = 0x56,//在绑定(bind)请求中指定了一种未知的认证机制</span><br><span class="line"></span><br><span class="line">LDAP_FILTER_ERROR = 0x57,//搜索过滤器出现了某种错误</span><br><span class="line"></span><br><span class="line">LDAP_USER_CANCELLED = 0x58,//用户取消了操作</span><br><span class="line"></span><br><span class="line">LDAP_PARAM_ERROR = 0x59,//函数中指定的某个参数出现了错误。例如，向一个LDAP API函数传递一个NULL指针，但该函数并不希望这样，在这种情况下就产生该错误</span><br><span class="line"></span><br><span class="line">LDAP_NO_MEMORY = 0x5a,//客户试图分配内存并且失败了</span><br><span class="line"></span><br><span class="line">LDAP_CONNECT_ERROR = 0x5b,//客户试图向服务器建立一个TCP连接并且失败了</span><br><span class="line"></span><br><span class="line">LDAP_NOT_SUPPORTED = 0x5c,//所请求的操作不被这种版本的LDAP协议所支持</span><br><span class="line"></span><br><span class="line">LDAP_NO_RESULTS_RETURNED = 0x5e,//从服务器接受到一个响应，但是它没有包含结果</span><br><span class="line"></span><br><span class="line">LDAP_CONTROL_NOT_FOUND = 0x5d,//从服务器接受到的数据表明有一个LDAP控制出现但是在数据中没有找到一个LDAP控制</span><br><span class="line"></span><br><span class="line">LDAP_MORE_RESULTS_TO_RETURN = 0x5f,//因为有太多的结果，所以客户无法检索</span><br><span class="line"></span><br><span class="line">LDAP_CLIENT_LOOP = 0x60,//在处理引用时客户检测到一个循环</span><br><span class="line"></span><br><span class="line">引用数目超过了限制</span><br><span class="line"></span><br><span class="line">LDAP_REFERRAL_LIMIT_EXCEEDED = 0x61//客户追踪的</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer"><div class="post-widgets">
+    <div
+      class="social-share"
+      
+        data-sites="weibo,qq,wechat,tencent,douban,qzone,linkedin,diandian,facebook,twitter,google"
+      
+      
+        data-wechat-qrcode-title="share.title"
+      
+      
+        data-wechat-qrcode-helper="share.prompt"
+      
+    >
+    </div>
+  </div>
+  <script src="https://lib.baomitu.com/social-share.js/1.0.16/js/social-share.min.js"></script><script src="//sdk.jinrishici.com/v2/browser/jinrishici.js"></script>
+<script>
+  jinrishici.load((result) => {
+    let jrsc = document.getElementById('jrsc');
+    const data = result.data;
+    let author = data.origin.author;
+    let title = '《' + data.origin.title + '》';
+    let content = data.content.substr(0, data.content.length - 1);
+    let dynasty = data.origin.dynasty.substr(0, data.origin.dynasty.length - 1);
+    jrsc.innerText = content + ' @ ' + dynasty + '·' + author + title;
+  });
+</script>
+<div style="text-align: center"><span id="jrsc" >正在加载今日诗词....</span></div>
+
+          <div class="post-tags">
+              <a href="/tags/LDAP/" rel="tag"># LDAP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/01/11/Sonarqube%E7%9A%84%E4%BD%BF%E7%94%A8/" rel="prev" title="Sonarqube的使用">
+                  <i class="fa fa-chevron-left"></i> Sonarqube的使用
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/01/20/springcloud%E4%B8%AD%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%E4%BC%A0%E9%80%92/" rel="next" title="springcloud中的上下文传递">
+                  springcloud中的上下文传递 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Tree</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">185k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">5:09</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div><script color="0,0,255" opacity="0.5" zIndex="-1" count="99" src="https://lib.baomitu.com/canvas-nest.js/1.0.1/canvas-nest.js"></script>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pangu/4.0.7/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

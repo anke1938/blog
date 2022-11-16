@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dev8888.cn","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.13.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="测试服务器上RabbitMq服务有点小问题,决定自己在docker上run一个 直接pull吧 如果docker pull rabbitmq 后面不带management，启动rabbitmq后是无法打开管理界面的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker安装部署RabbitMQ">
+<meta property="og:url" content="http://dev8888.cn/2018/06/14/RabbitMQ/index.html">
+<meta property="og:site_name" content="Tree&#39;s Technology">
+<meta property="og:description" content="测试服务器上RabbitMq服务有点小问题,决定自己在docker上run一个 直接pull吧 如果docker pull rabbitmq 后面不带management，启动rabbitmq后是无法打开管理界面的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://dev8888.cn/uploads/docker.jpg">
+<meta property="og:image" content="http://dev8888.cn/uploads/rabbit.png">
+<meta property="og:image" content="http://dev8888.cn/uploads/rabbitmq_1.png">
+<meta property="article:published_time" content="2018-06-14T09:50:15.000Z">
+<meta property="article:modified_time" content="2022-11-14T15:06:02.452Z">
+<meta property="article:author" content="Tree">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="rabbit">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://dev8888.cn/uploads/docker.jpg">
+
+
+<link rel="canonical" href="http://dev8888.cn/2018/06/14/RabbitMQ/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://dev8888.cn/2018/06/14/RabbitMQ/","path":"2018/06/14/RabbitMQ/","title":"Docker安装部署RabbitMQ"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Docker安装部署RabbitMQ | Tree's Technology</title>
+  
+
+
+
+
+
+<link rel="stylesheet" href="https://lib.baomitu.com/social-share.js/1.0.16/css/share.min.css">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Tree's Technology</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录代码技术</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8ARabbitMq%E6%9C%8D%E5%8A%A1%E6%9C%89%E7%82%B9%E5%B0%8F%E9%97%AE%E9%A2%98-%E5%86%B3%E5%AE%9A%E8%87%AA%E5%B7%B1%E5%9C%A8docker%E4%B8%8Arun%E4%B8%80%E4%B8%AA"><span class="nav-number">1.</span> <span class="nav-text">测试服务器上RabbitMq服务有点小问题,决定自己在docker上run一个</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5pull%E5%90%A7"><span class="nav-number">1.0.1.</span> <span class="nav-text">直接pull吧</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E4%B8%8B%E9%95%9C%E5%83%8F-%E6%8E%A5%E4%B8%8B%E6%9D%A5%E5%B0%B1%E5%8F%AF%E4%BB%A5%E5%90%AF%E7%94%A8%E4%BA%86"><span class="nav-number">1.0.2.</span> <span class="nav-text">查看下镜像,接下来就可以启用了</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A1%AE%E5%AE%9A%E5%A5%BD%E4%BD%A0%E8%A6%81%E5%BC%80%E5%90%AF%E7%9A%84%E7%AB%AF%E5%8F%A3%E6%98%A0%E5%B0%84%E5%85%B3%E7%B3%BB"><span class="nav-number">1.0.3.</span> <span class="nav-text">确定好你要开启的端口映射关系</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%AE%B9%E5%99%A8%E7%8A%B6%E6%80%81-%E7%9B%AE%E5%89%8D%E5%BC%80%E5%90%AF%E4%B8%80%E4%B8%AAmongo%E5%92%8C%E4%B8%80%E4%B8%AAmq-%E5%8F%AF%E4%BB%A5%E7%9C%8B%E5%88%B0%E5%8D%A0%E7%94%A8%E8%B5%84%E6%BA%90%E5%BE%88%E5%B0%8F"><span class="nav-number">1.0.4.</span> <span class="nav-text">查看容器状态,目前开启一个mongo和一个mq,可以看到占用资源很小</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%9D%E8%AF%95%E8%AE%BF%E9%97%AErabbitmq-web%E7%AE%A1%E7%90%86%E9%A1%B5%E9%9D%A2"><span class="nav-number">1.0.5.</span> <span class="nav-text">尝试访问rabbitmq web管理页面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9B%E5%85%A5%E5%AE%B9%E5%99%A8%E8%BF%9B%E8%A1%8C%E4%BA%A4%E4%BA%92"><span class="nav-number">1.0.6.</span> <span class="nav-text">进入容器进行交互</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rabbit-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">1.0.7.</span> <span class="nav-text">rabbit 常用命令</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8"><span class="nav-number">1.0.7.1.</span> <span class="nav-text">启动</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%A8%E6%88%B7"><span class="nav-number">1.0.7.2.</span> <span class="nav-text">用户</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#vhost"><span class="nav-number">1.0.7.3.</span> <span class="nav-text">vhost</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9D%83%E9%99%90"><span class="nav-number">1.0.7.4.</span> <span class="nav-text">权限</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E5%AF%86%E7%A0%81"><span class="nav-number">1.0.7.5.</span> <span class="nav-text">修改密码</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%A5%E4%B8%8B%E6%9D%A5%E5%B0%B1%E5%8F%AF%E4%BB%A5%E9%83%A8%E7%BD%B2%E4%BD%A0%E7%9A%84%E5%BA%94%E7%94%A8%E4%BA%86"><span class="nav-number">1.0.8.</span> <span class="nav-text">接下来就可以部署你的应用了</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Tree"
+      src="/uploads/123.jpg">
+  <p class="site-author-name" itemprop="name">Tree</p>
+  <div class="site-description" itemprop="description">一个小站</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/anke1938" title="GitHub → https:&#x2F;&#x2F;gitee.com&#x2F;anke1938" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:anke1938@qq.com" title="E-Mail → mailto:anke1938@qq.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://dev8888.cn/2018/06/14/RabbitMQ/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/123.jpg">
+      <meta itemprop="name" content="Tree">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tree's Technology">
+      <meta itemprop="description" content="一个小站">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Docker安装部署RabbitMQ | Tree's Technology">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Docker安装部署RabbitMQ
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-06-14 17:50:15" itemprop="dateCreated datePublished" datetime="2018-06-14T17:50:15+08:00">2018-06-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-11-14 23:06:02" itemprop="dateModified" datetime="2022-11-14T23:06:02+08:00">2022-11-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/docekr/" itemprop="url" rel="index"><span itemprop="name">docekr</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/docekr/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">学习记录</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>2 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p><img src="/uploads/docker.jpg" alt="avatar"></p>
+<p><img src="/uploads/rabbit.png" alt="avatar"></p>
+<h2 id="测试服务器上RabbitMq服务有点小问题-决定自己在docker上run一个"><a href="#测试服务器上RabbitMq服务有点小问题-决定自己在docker上run一个" class="headerlink" title="测试服务器上RabbitMq服务有点小问题,决定自己在docker上run一个"></a>测试服务器上RabbitMq服务有点小问题,决定自己在docker上run一个</h2><hr>
+<h4 id="直接pull吧"><a href="#直接pull吧" class="headerlink" title="直接pull吧"></a>直接pull吧</h4><blockquote>
+<p>如果docker pull rabbitmq 后面不带management，启动rabbitmq后是无法打开管理界面的</p>
+</blockquote>
+<span id="more"></span>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull rabbitmq:management</span><br></pre></td></tr></table></figure>
+
+<h4 id="查看下镜像-接下来就可以启用了"><a href="#查看下镜像-接下来就可以启用了" class="headerlink" title="查看下镜像,接下来就可以启用了"></a>查看下镜像,接下来就可以启用了</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">root@admin:~# docker images</span><br><span class="line">REPOSITORY                                            TAG                 IMAGE ID            CREATED             SIZE</span><br><span class="line">registry.cn-hangzhou.aliyuncs.com/anke19388/mymongo   2.0                 6b89d82e7fa1        2 days ago          361 MB</span><br><span class="line">rabbitmq                                              management          c51d1c73d028        4 weeks ago         149 MB</span><br><span class="line">redis                                                 latest              bfcb1f6df2db        6 weeks ago         107 MB</span><br><span class="line">ubuntu                                                latest              452a96d81c30        6 weeks ago         79.6 MB</span><br><span class="line">ubuntu                                                &lt;none&gt;              c9d990395902        2 months ago        113 MB</span><br><span class="line">hello-world                                           latest              e38bc07ac18e        2 months ago        1.85 kB</span><br></pre></td></tr></table></figure>
+
+<h4 id="确定好你要开启的端口映射关系"><a href="#确定好你要开启的端口映射关系" class="headerlink" title="确定好你要开启的端口映射关系"></a>确定好你要开启的端口映射关系</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name mq -p 5672:5672 -p 15672:15672 -p 25672:25672 rabbitmq:management</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>-p 可以指定多个端口</p>
+</blockquote>
+<h4 id="查看容器状态-目前开启一个mongo和一个mq-可以看到占用资源很小"><a href="#查看容器状态-目前开启一个mongo和一个mq-可以看到占用资源很小" class="headerlink" title="查看容器状态,目前开启一个mongo和一个mq,可以看到占用资源很小"></a>查看容器状态,目前开启一个mongo和一个mq,可以看到占用资源很小</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CONTAINER           CPU %               MEM USAGE / LIMIT       MEM %               NET I/O             BLOCK I/O           PIDS</span><br><span class="line">b6bf8a5ebc1a        0.33%               87.2 MiB / 3.737 GiB    2.28%               2.82 kB / 578 B     53.2 kB / 463 kB    91</span><br><span class="line">0a0d5dd124ff        0.45%               699.8 MiB / 3.737 GiB   18.28%              390 MB / 129 MB     1.83 GB / 747 MB    27</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="尝试访问rabbitmq-web管理页面"><a href="#尝试访问rabbitmq-web管理页面" class="headerlink" title="尝试访问rabbitmq web管理页面"></a>尝试访问rabbitmq web管理页面</h4><blockquote>
+<p>http:&#x2F;&#x2F;宿主机IP:15672，默认创建了一个 guest 用户，密码也是 guest。</p>
+</blockquote>
+<p><img src="/uploads/rabbitmq_1.png" alt="avatar"></p>
+<h4 id="进入容器进行交互"><a href="#进入容器进行交互" class="headerlink" title="进入容器进行交互"></a>进入容器进行交互</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it mq /bin/bash</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="rabbit-常用命令"><a href="#rabbit-常用命令" class="headerlink" title="rabbit 常用命令"></a>rabbit 常用命令</h4><h5 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h5><ul>
+<li>rabbitmq-server -detached</li>
+</ul>
+<h5 id="用户"><a href="#用户" class="headerlink" title="用户"></a>用户</h5><ul>
+<li>rabbitmaqtl list_users<blockquote>
+<p>rabbitmqctl add_user xxx xxx<br>rabbitmqctl set_user_tags dev administrator</p>
+</blockquote>
+</li>
+</ul>
+<h5 id="vhost"><a href="#vhost" class="headerlink" title="vhost"></a>vhost</h5><ul>
+<li>rabbitemqctl list_vhost<blockquote>
+<p>rabbitmqctl add_vhost shop_dev</p>
+</blockquote>
+</li>
+</ul>
+<h5 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h5><blockquote>
+<p>rabbitmqctl set_permissions -p  pzx_dev dev “.<em>“ “.</em>“  “.*”</p>
+</blockquote>
+<h5 id="修改密码"><a href="#修改密码" class="headerlink" title="修改密码"></a>修改密码</h5><ul>
+<li>rabbitmqctl change_password guest xxxx</li>
+</ul>
+<h4 id="接下来就可以部署你的应用了"><a href="#接下来就可以部署你的应用了" class="headerlink" title="接下来就可以部署你的应用了"></a>接下来就可以部署你的应用了</h4>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer"><div class="post-widgets">
+    <div
+      class="social-share"
+      
+        data-sites="weibo,qq,wechat,tencent,douban,qzone,linkedin,diandian,facebook,twitter,google"
+      
+      
+        data-wechat-qrcode-title="share.title"
+      
+      
+        data-wechat-qrcode-helper="share.prompt"
+      
+    >
+    </div>
+  </div>
+  <script src="https://lib.baomitu.com/social-share.js/1.0.16/js/social-share.min.js"></script><script src="//sdk.jinrishici.com/v2/browser/jinrishici.js"></script>
+<script>
+  jinrishici.load((result) => {
+    let jrsc = document.getElementById('jrsc');
+    const data = result.data;
+    let author = data.origin.author;
+    let title = '《' + data.origin.title + '》';
+    let content = data.content.substr(0, data.content.length - 1);
+    let dynasty = data.origin.dynasty.substr(0, data.origin.dynasty.length - 1);
+    jrsc.innerText = content + ' @ ' + dynasty + '·' + author + title;
+  });
+</script>
+<div style="text-align: center"><span id="jrsc" >正在加载今日诗词....</span></div>
+
+          <div class="post-tags">
+              <a href="/tags/docker/" rel="tag"># docker</a>
+              <a href="/tags/rabbit/" rel="tag"># rabbit</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/06/13/%E9%98%BF%E9%87%8C%E4%BA%91%E9%A6%99%E6%B8%AF%E6%9C%8D%E5%8A%A1%E5%99%A8ss%E7%9A%84%E5%9D%91/" rel="prev" title="阿里云香港服务器ss的坑">
+                  <i class="fa fa-chevron-left"></i> 阿里云香港服务器ss的坑
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/06/20/Nginx%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE/" rel="next" title="Nginx常用配置">
+                  Nginx常用配置 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Tree</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">185k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">5:09</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div><script color="0,0,255" opacity="0.5" zIndex="-1" count="99" src="https://lib.baomitu.com/canvas-nest.js/1.0.1/canvas-nest.js"></script>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pangu/4.0.7/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

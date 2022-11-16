@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dev8888.cn","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.13.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="为了优化数据库的查询，首先了解下mongo的explain()进行一条普通的查询去了解具体的内容1db.getCollection(&amp;#x27;qRCodeInfo&amp;#x27;).find(&amp;#123;code:&amp;#x27;u4vsw7956rz&amp;#x27;&amp;#125;).explain(&amp;#x27;executionStats&amp;#x27;) stage 包含的计划123456789101112">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mongo的explain">
+<meta property="og:url" content="http://dev8888.cn/2018/09/13/Mongo%E7%9A%84explain/index.html">
+<meta property="og:site_name" content="Tree&#39;s Technology">
+<meta property="og:description" content="为了优化数据库的查询，首先了解下mongo的explain()进行一条普通的查询去了解具体的内容1db.getCollection(&amp;#x27;qRCodeInfo&amp;#x27;).find(&amp;#123;code:&amp;#x27;u4vsw7956rz&amp;#x27;&amp;#125;).explain(&amp;#x27;executionStats&amp;#x27;) stage 包含的计划123456789101112">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://dev8888.cn/uploads/mongodb.jpg">
+<meta property="article:published_time" content="2018-09-13T13:43:54.000Z">
+<meta property="article:modified_time" content="2022-11-14T15:06:02.446Z">
+<meta property="article:author" content="Tree">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="学习记录">
+<meta property="article:tag" content="Mongo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://dev8888.cn/uploads/mongodb.jpg">
+
+
+<link rel="canonical" href="http://dev8888.cn/2018/09/13/Mongo%E7%9A%84explain/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://dev8888.cn/2018/09/13/Mongo%E7%9A%84explain/","path":"2018/09/13/Mongo的explain/","title":"Mongo的explain"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Mongo的explain | Tree's Technology</title>
+  
+
+
+
+
+
+<link rel="stylesheet" href="https://lib.baomitu.com/social-share.js/1.0.16/css/share.min.css">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Tree's Technology</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录代码技术</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BA%86%E4%BC%98%E5%8C%96%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E6%9F%A5%E8%AF%A2%EF%BC%8C%E9%A6%96%E5%85%88%E4%BA%86%E8%A7%A3%E4%B8%8Bmongo%E7%9A%84explain"><span class="nav-number">1.</span> <span class="nav-text">为了优化数据库的查询，首先了解下mongo的explain()</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BF%9B%E8%A1%8C%E4%B8%80%E6%9D%A1%E6%99%AE%E9%80%9A%E7%9A%84%E6%9F%A5%E8%AF%A2%E5%8E%BB%E4%BA%86%E8%A7%A3%E5%85%B7%E4%BD%93%E7%9A%84%E5%86%85%E5%AE%B9"><span class="nav-number">1.1.</span> <span class="nav-text">进行一条普通的查询去了解具体的内容</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#stage-%E5%8C%85%E5%90%AB%E7%9A%84%E8%AE%A1%E5%88%92"><span class="nav-number">2.</span> <span class="nav-text">stage 包含的计划</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%BD%E5%8F%AF%E8%83%BD%E7%9A%84%E5%BC%95%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">尽可能的引用</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Tree"
+      src="/uploads/123.jpg">
+  <p class="site-author-name" itemprop="name">Tree</p>
+  <div class="site-description" itemprop="description">一个小站</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/anke1938" title="GitHub → https:&#x2F;&#x2F;gitee.com&#x2F;anke1938" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:anke1938@qq.com" title="E-Mail → mailto:anke1938@qq.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://dev8888.cn/2018/09/13/Mongo%E7%9A%84explain/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/123.jpg">
+      <meta itemprop="name" content="Tree">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tree's Technology">
+      <meta itemprop="description" content="一个小站">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Mongo的explain | Tree's Technology">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mongo的explain
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-09-13 21:43:54" itemprop="dateCreated datePublished" datetime="2018-09-13T21:43:54+08:00">2018-09-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-11-14 23:06:02" itemprop="dateModified" datetime="2022-11-14T23:06:02+08:00">2022-11-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">学习记录</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>7 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p><img src="/uploads/mongodb.jpg" alt="avatar"></p>
+<h4 id="为了优化数据库的查询，首先了解下mongo的explain"><a href="#为了优化数据库的查询，首先了解下mongo的explain" class="headerlink" title="为了优化数据库的查询，首先了解下mongo的explain()"></a>为了优化数据库的查询，首先了解下mongo的explain()</h4><h5 id="进行一条普通的查询去了解具体的内容"><a href="#进行一条普通的查询去了解具体的内容" class="headerlink" title="进行一条普通的查询去了解具体的内容"></a>进行一条普通的查询去了解具体的内容</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.getCollection(&#x27;qRCodeInfo&#x27;).find(&#123;code:&#x27;u4vsw7956rz&#x27;&#125;).explain(&#x27;executionStats&#x27;)</span><br></pre></td></tr></table></figure>
+<h4 id="stage-包含的计划"><a href="#stage-包含的计划" class="headerlink" title="stage 包含的计划"></a>stage 包含的计划</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">COLLSCAN：全表扫描</span><br><span class="line">IXSCAN：索引扫描</span><br><span class="line">FETCH：根据索引去检索指定document</span><br><span class="line">SHARD_MERGE：将各个分片返回数据进行merge</span><br><span class="line">SORT：表明在内存中进行了排序</span><br><span class="line">LIMIT：使用limit限制返回数</span><br><span class="line">SKIP：使用skip进行跳过</span><br><span class="line">IDHACK：针对_id进行查询</span><br><span class="line">SHARDING_FILTER：通过mongos对分片数据进行查询</span><br><span class="line">COUNT：利用db.coll.explain().count()之类进行count运算</span><br><span class="line">COUNTSCAN：count不使用Index进行count时的stage返回</span><br><span class="line">COUNT_SCAN：count使用了Index进行count时的stage返回</span><br><span class="line">SUBPLA：未使用到索引的$or查询的stage返回</span><br><span class="line">TEXT：使用全文索引进行查询时候的stage返回</span><br><span class="line">PROJECTION：限定返回字段时候stage的返回</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h4 id="尽可能的引用"><a href="#尽可能的引用" class="headerlink" title="尽可能的引用"></a>尽可能的引用</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Fetch+IDHACK</span><br><span class="line">Fetch+ixscan</span><br><span class="line">Limit+（Fetch+ixscan）</span><br><span class="line">PROJECTION+ixscan</span><br><span class="line">SHARDING_FITER+ixscan</span><br><span class="line">COUNT_SCAN</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line">/* 1 */</span><br><span class="line">&#123;</span><br><span class="line">    &quot;queryPlanner&quot; : &#123;</span><br><span class="line">        &quot;plannerVersion&quot; : 1,</span><br><span class="line">        &quot;namespace&quot; : &quot;pzx_online.qRCodeInfo&quot;,        //query所查询的表</span><br><span class="line">        &quot;indexFilterSet&quot; : false,                      //是否使用到了索引来过滤</span><br><span class="line">        &quot;parsedQuery&quot; : &#123;</span><br><span class="line">            &quot;code&quot; : &#123;</span><br><span class="line">                &quot;$eq&quot; : &quot;u4vsw7956rz&quot;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;winningPlan&quot; : &#123;              //最佳的执行计划</span><br><span class="line">            &quot;stage&quot; : &quot;FETCH&quot;, //最优执行计划的stage，这里返回是FETCH，通过索引</span><br><span class="line">            &quot;inputStage&quot; : &#123; //MongoDB将计划表示为 阶段树，可以有一个inputStage或者多个，顺序执行</span><br><span class="line">                &quot;stage&quot; : &quot;IXSCAN&quot;,         //IXSCAN，表示进行的是执行了索引查询</span><br><span class="line">                &quot;keyPattern&quot; : &#123;        </span><br><span class="line">                    &quot;code&quot; : 1.0    //所扫描的index内容   </span><br><span class="line">                &#125;,</span><br><span class="line">                &quot;indexName&quot; : &quot;index_code&quot;,     //索引名称</span><br><span class="line">                &quot;isMultiKey&quot; : false,  //此处返回是false，如果索引建立在array上，此处将是true</span><br><span class="line">                &quot;multiKeyPaths&quot; : &#123;</span><br><span class="line">                    &quot;code&quot; : []</span><br><span class="line">                &#125;,</span><br><span class="line">                &quot;isUnique&quot; : true,</span><br><span class="line">                &quot;isSparse&quot; : false,</span><br><span class="line">                &quot;isPartial&quot; : false,</span><br><span class="line">                &quot;indexVersion&quot; : 2,</span><br><span class="line">                &quot;direction&quot; : &quot;forward&quot;,        //查询正逆序</span><br><span class="line">                &quot;indexBounds&quot; : &#123;</span><br><span class="line">                    &quot;code&quot; : [//扫描的索引范围,默认[Max, Min]，直接定位到chunck(分区)中查找</span><br><span class="line">                        &quot;[\&quot;u4vsw7956rz\&quot;, \&quot;u4vsw7956rz\&quot;]&quot; </span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;rejectedPlans&quot; : []   //其他执行计划（非最优而被查询优化器reject的）的详细返回</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;executionStats&quot; : &#123;             //执行计划相关统计信息</span><br><span class="line">        &quot;executionSuccess&quot; : true,      //执行成功的状态</span><br><span class="line">        &quot;nReturned&quot; : 1,                //返回结果集数目</span><br><span class="line">        &quot;executionTimeMillis&quot; : 0,      //执行所需的时间,毫秒</span><br><span class="line">        &quot;totalKeysExamined&quot; : 1,        //索引检查的时间</span><br><span class="line">        &quot;totalDocsExamined&quot; : 1,        //检查文档总数</span><br><span class="line">        &quot;executionStages&quot; : &#123;    //理想nReturned=totalKeysExamined=totalDocsExamined</span><br><span class="line">            &quot;stage&quot; : &quot;FETCH&quot;,          //根据索引去检索文档 </span><br><span class="line">            &quot;nReturned&quot; : 1,</span><br><span class="line">            &quot;executionTimeMillisEstimate&quot; : 0,//根据index去检索document获得n条数据的时间。</span><br><span class="line">            &quot;works&quot; : 2,            //工作单元数，一个查询会被派生为一些小的工作单元</span><br><span class="line">            &quot;advanced&quot; : 1,          //优先返回的结果数目</span><br><span class="line">            &quot;needTime&quot; : 0,        </span><br><span class="line">            &quot;needYield&quot; : 0,</span><br><span class="line">            &quot;saveState&quot; : 0,</span><br><span class="line">            &quot;restoreState&quot; : 0,</span><br><span class="line">            &quot;isEOF&quot; : 1,</span><br><span class="line">            &quot;invalidates&quot; : 0,</span><br><span class="line">            &quot;docsExamined&quot; : 1,</span><br><span class="line">            &quot;alreadyHasObj&quot; : 0,</span><br><span class="line">            &quot;inputStage&quot; : &#123;</span><br><span class="line">                &quot;stage&quot; : &quot;IXSCAN&quot;,         //索引扫描</span><br><span class="line">                &quot;nReturned&quot; : 1,</span><br><span class="line">                &quot;executionTimeMillisEstimate&quot; : 0,</span><br><span class="line">                &quot;works&quot; : 2,</span><br><span class="line">                &quot;advanced&quot; : 1,</span><br><span class="line">                &quot;needTime&quot; : 0,</span><br><span class="line">                &quot;needYield&quot; : 0,</span><br><span class="line">                &quot;saveState&quot; : 0,</span><br><span class="line">                &quot;restoreState&quot; : 0,</span><br><span class="line">                &quot;isEOF&quot; : 1,</span><br><span class="line">                &quot;invalidates&quot; : 0,</span><br><span class="line">                &quot;keyPattern&quot; : &#123;</span><br><span class="line">                    &quot;code&quot; : 1.0</span><br><span class="line">                &#125;,</span><br><span class="line">                &quot;indexName&quot; : &quot;index_code&quot;,</span><br><span class="line">                &quot;isMultiKey&quot; : false,</span><br><span class="line">                &quot;multiKeyPaths&quot; : &#123;</span><br><span class="line">                    &quot;code&quot; : []</span><br><span class="line">                &#125;,</span><br><span class="line">                &quot;isUnique&quot; : true,</span><br><span class="line">                &quot;isSparse&quot; : false,</span><br><span class="line">                &quot;isPartial&quot; : false,</span><br><span class="line">                &quot;indexVersion&quot; : 2,</span><br><span class="line">                &quot;direction&quot; : &quot;forward&quot;,</span><br><span class="line">                &quot;indexBounds&quot; : &#123;</span><br><span class="line">                    &quot;code&quot; : [ </span><br><span class="line">                        &quot;[\&quot;u4vsw7956rz\&quot;, \&quot;u4vsw7956rz\&quot;]&quot;</span><br><span class="line">                    ]</span><br><span class="line">                &#125;,</span><br><span class="line">                &quot;keysExamined&quot; : 1,</span><br><span class="line">                &quot;seeks&quot; : 1,</span><br><span class="line">                &quot;dupsTested&quot; : 0,</span><br><span class="line">                &quot;dupsDropped&quot; : 0,</span><br><span class="line">                &quot;seenInvalidated&quot; : 0</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;serverInfo&quot; : &#123;         //服务器信息，包括主机名，端口，版本等。</span><br><span class="line">        &quot;host&quot; : &quot;jwd-web&quot;,</span><br><span class="line">        &quot;port&quot; : 27717,</span><br><span class="line">        &quot;version&quot; : &quot;3.4.14&quot;,</span><br><span class="line">        &quot;gitVersion&quot; : &quot;fd954412dfc10e4d1e3e2dd4fac040f8b476b268&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;ok&quot; : 1.0</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">#### 接下来继续寻找runcommand的优化</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer"><div class="post-widgets">
+    <div
+      class="social-share"
+      
+        data-sites="weibo,qq,wechat,tencent,douban,qzone,linkedin,diandian,facebook,twitter,google"
+      
+      
+        data-wechat-qrcode-title="share.title"
+      
+      
+        data-wechat-qrcode-helper="share.prompt"
+      
+    >
+    </div>
+  </div>
+  <script src="https://lib.baomitu.com/social-share.js/1.0.16/js/social-share.min.js"></script><script src="//sdk.jinrishici.com/v2/browser/jinrishici.js"></script>
+<script>
+  jinrishici.load((result) => {
+    let jrsc = document.getElementById('jrsc');
+    const data = result.data;
+    let author = data.origin.author;
+    let title = '《' + data.origin.title + '》';
+    let content = data.content.substr(0, data.content.length - 1);
+    let dynasty = data.origin.dynasty.substr(0, data.origin.dynasty.length - 1);
+    jrsc.innerText = content + ' @ ' + dynasty + '·' + author + title;
+  });
+</script>
+<div style="text-align: center"><span id="jrsc" >正在加载今日诗词....</span></div>
+
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" rel="tag"># 学习记录</a>
+              <a href="/tags/Mongo/" rel="tag"># Mongo</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/09/11/%E6%A0%91%E8%8E%93%E6%B4%BE%E4%B8%8A%E7%9A%84Homeassistant%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" rel="prev" title="树莓派上的Homeassistant简单使用">
+                  <i class="fa fa-chevron-left"></i> 树莓派上的Homeassistant简单使用
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/09/16/mongo%E5%8E%9F%E7%94%9F%E6%9F%A5%E8%AF%A2%E8%AE%B0%E5%BD%95/" rel="next" title="mongo原生查询记录优化之路">
+                  mongo原生查询记录优化之路 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Tree</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">185k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">5:09</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div><script color="0,0,255" opacity="0.5" zIndex="-1" count="99" src="https://lib.baomitu.com/canvas-nest.js/1.0.1/canvas-nest.js"></script>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pangu/4.0.7/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

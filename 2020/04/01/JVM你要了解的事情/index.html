@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dev8888.cn","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.13.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Jvm 的主要组成部分 类加载器（ClassLoader） 运行时数据区（Runtime Data Area） 执行引擎（Execution Engine） 本地库接口（Native Interface） 组件的作用： 首先通过类加载器（ClassLoader）会把 Java 代码转换成字节码，运行时数据区（Runtime Data Area）再把字节码加载到内存中，而字节码文件只是 JVM 的一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM你要了解的事情">
+<meta property="og:url" content="http://dev8888.cn/2020/04/01/JVM%E4%BD%A0%E8%A6%81%E4%BA%86%E8%A7%A3%E7%9A%84%E4%BA%8B%E6%83%85/index.html">
+<meta property="og:site_name" content="Tree&#39;s Technology">
+<meta property="og:description" content="Jvm 的主要组成部分 类加载器（ClassLoader） 运行时数据区（Runtime Data Area） 执行引擎（Execution Engine） 本地库接口（Native Interface） 组件的作用： 首先通过类加载器（ClassLoader）会把 Java 代码转换成字节码，运行时数据区（Runtime Data Area）再把字节码加载到内存中，而字节码文件只是 JVM 的一">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401102123.jpg">
+<meta property="og:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401102219.jpg">
+<meta property="og:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401110353.jpg">
+<meta property="og:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401110233.jpg">
+<meta property="og:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401110312.jpg">
+<meta property="article:published_time" content="2020-04-01T03:06:29.000Z">
+<meta property="article:modified_time" content="2022-11-14T15:06:02.440Z">
+<meta property="article:author" content="Tree">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/Anke1938/image/raw/master/img/20200401102123.jpg">
+
+
+<link rel="canonical" href="http://dev8888.cn/2020/04/01/JVM%E4%BD%A0%E8%A6%81%E4%BA%86%E8%A7%A3%E7%9A%84%E4%BA%8B%E6%83%85/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://dev8888.cn/2020/04/01/JVM%E4%BD%A0%E8%A6%81%E4%BA%86%E8%A7%A3%E7%9A%84%E4%BA%8B%E6%83%85/","path":"2020/04/01/JVM你要了解的事情/","title":"JVM你要了解的事情"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>JVM你要了解的事情 | Tree's Technology</title>
+  
+
+
+
+
+
+<link rel="stylesheet" href="https://lib.baomitu.com/social-share.js/1.0.16/css/share.min.css">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Tree's Technology</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录代码技术</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Jvm-%E7%9A%84%E4%B8%BB%E8%A6%81%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86"><span class="nav-number">1.</span> <span class="nav-text">Jvm 的主要组成部分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jvm%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%B8%B8%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">2.</span> <span class="nav-text">Jvm与上下游之间的关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">Jvm内存模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jvm-%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA"><span class="nav-number">4.</span> <span class="nav-text">Jvm 运行时数据区</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A0%86-%E6%A0%88-%E9%98%9F%E5%88%97"><span class="nav-number">5.</span> <span class="nav-text">堆,栈,队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8-ClassLoader"><span class="nav-number">6.</span> <span class="nav-text">类加载器(ClassLoader)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%A8%A1%E5%9E%8B"><span class="nav-number">7.</span> <span class="nav-text">双亲委派模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">8.</span> <span class="nav-text">类加载的执行过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jvm%E5%B8%B8%E7%94%A8%E8%B0%83%E4%BC%98%E5%B7%A5%E5%85%B7"><span class="nav-number">9.</span> <span class="nav-text">Jvm常用调优工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8D%E5%B0%84"><span class="nav-number">10.</span> <span class="nav-text">反射</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8Jvm%E8%B0%83%E4%BC%98%E5%8F%82%E6%95%B0"><span class="nav-number">11.</span> <span class="nav-text">常用Jvm调优参数</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Tree"
+      src="/uploads/123.jpg">
+  <p class="site-author-name" itemprop="name">Tree</p>
+  <div class="site-description" itemprop="description">一个小站</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/anke1938" title="GitHub → https:&#x2F;&#x2F;gitee.com&#x2F;anke1938" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:anke1938@qq.com" title="E-Mail → mailto:anke1938@qq.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://dev8888.cn/2020/04/01/JVM%E4%BD%A0%E8%A6%81%E4%BA%86%E8%A7%A3%E7%9A%84%E4%BA%8B%E6%83%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/123.jpg">
+      <meta itemprop="name" content="Tree">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tree's Technology">
+      <meta itemprop="description" content="一个小站">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="JVM你要了解的事情 | Tree's Technology">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JVM你要了解的事情
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-04-01 11:06:29" itemprop="dateCreated datePublished" datetime="2020-04-01T11:06:29+08:00">2020-04-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-11-14 23:06:02" itemprop="dateModified" datetime="2022-11-14T23:06:02+08:00">2022-11-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">学习记录</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>6 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="Jvm-的主要组成部分"><a href="#Jvm-的主要组成部分" class="headerlink" title="Jvm 的主要组成部分"></a>Jvm 的主要组成部分</h2><ul>
+<li>类加载器（ClassLoader）</li>
+<li>运行时数据区（Runtime Data Area）</li>
+<li>执行引擎（Execution Engine）</li>
+<li>本地库接口（Native Interface）</li>
+<li>组件的作用： 首先通过类加载器（ClassLoader）会把 Java 代码转换成字节码，运行时数据区（Runtime Data Area）再把字节码加载到内存中，而字节码文件只是 JVM 的一套指令集规范，并不能直接交个底层操作系统去执行，因此需要特定的命令解析器执行引擎（Execution Engine），将字节码翻译成底层系统指令，再交由 CPU 去执行，而这个过程中需要调用其他语言的本地库接口（Native Interface）来实现整个程序的功能</li>
+</ul>
+<h2 id="Jvm与上下游之间的关系"><a href="#Jvm与上下游之间的关系" class="headerlink" title="Jvm与上下游之间的关系"></a>Jvm与上下游之间的关系</h2><p><img src="https://gitee.com/Anke1938/image/raw/master/img/20200401102123.jpg" alt="QQ截图20200401101936"></p>
+<span id="more"></span>
+
+<h2 id="Jvm内存模型"><a href="#Jvm内存模型" class="headerlink" title="Jvm内存模型"></a>Jvm内存模型</h2><p><img src="https://gitee.com/Anke1938/image/raw/master/img/20200401102219.jpg" alt="QQ截图20200401101849"></p>
+<h2 id="Jvm-运行时数据区"><a href="#Jvm-运行时数据区" class="headerlink" title="Jvm 运行时数据区"></a>Jvm 运行时数据区</h2><ol>
+<li><strong>程序计数器</strong>（Program Counter Register）：当前线程所执行的字节码的行号指示器，字节码解析器的工作是通过改变这个计数器的值，来选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理、线程恢复等基础功能，都需要依赖这个计数器来完成</li>
+<li><strong>Java 虚拟机栈</strong>（Java Virtual Machine Stacks）：用于存储局<strong>部变量表、操作数栈、动态链接、方法出口</strong>等信息</li>
+<li><strong>本地方法栈</strong>（Native Method Stack）：与虚拟机栈的作用是一样的，只不过虚拟机栈是服务 Java 方法的，而本地方法栈是为虚拟机调用 Native 方法服务的</li>
+<li><strong>Java 堆</strong>（Java Heap）：Java 虚拟机中内存最大的一块，是被所有线程共享的，几乎所有的<strong>对象实例</strong>都在这里分配内存</li>
+<li><strong>方法区</strong>（Method Area）：是被所有线程共享的,用于存储已被虚拟机加载的<strong>静态变量,常量,类信息(构造函数,接口代码)<strong>、即时编译后的代码等数据,但是</strong>实例变量存在于堆内存,和方法区无关</strong></li>
+</ol>
+<h2 id="堆-栈-队列"><a href="#堆-栈-队列" class="headerlink" title="堆,栈,队列"></a>堆,栈,队列</h2><ol>
+<li>栈是用来存放对象的,堆是用来执行程序的,堆空间很大</li>
+<li>栈是线程私有的,堆是线程共享</li>
+<li>队列和栈都是被用来预存储数据</li>
+<li>队列允许先进先出检索元素,而栈对元素进行后进先出进行检索</li>
+</ol>
+<p><img src="https://gitee.com/Anke1938/image/raw/master/img/20200401110353.jpg" alt="QQ截图20200401110338"></p>
+<h2 id="类加载器-ClassLoader"><a href="#类加载器-ClassLoader" class="headerlink" title="类加载器(ClassLoader)"></a>类加载器(ClassLoader)</h2><blockquote>
+<p>对于任意一个类，都需要由加载它的类加载器和这个类本身一同确立在 JVM 中的唯一性，每一个类加载器，都有一个独立的类名称空间。类加载器就是根据指定全限定名称将 class 文件加载到 JVM 内存，然后再转化为 class 对象。</p>
+</blockquote>
+<ol>
+<li>启动类加载器（Bootstrap ClassLoader），是虚拟机自身的一部分，用来加载Java_HOME&#x2F;lib&#x2F;目录中的，或者被 -Xbootclasspath 参数所指定的路径中并且被虚拟机识别的类库</li>
+<li>其他类加载器：</li>
+<li>扩展类加载器（Extension ClassLoader）：负责加载\lib\ext目录或Java. ext. dirs系统变量指定的路径中的所有类库</li>
+<li>应用程序类加载器（Application ClassLoader）。负责加载用户类路径（classpath）上的指定类库，我们可以直接使用这个类加载器。一般情况，如果我们没有自定义类加载器默认就是用这个加载器</li>
+</ol>
+<p><img src="https://gitee.com/Anke1938/image/raw/master/img/20200401110233.jpg" alt="QQ截图20200401110218"></p>
+<h2 id="双亲委派模型"><a href="#双亲委派模型" class="headerlink" title="双亲委派模型"></a>双亲委派模型</h2><ul>
+<li>有了类加载器的概念,那么就很好理解了.如果一个类加载器收到了类加载的请求,它首先不会自己去加载这个类,而是把这个请求委派给父类加载器中去完成,每一层的类加载器都是如此,这样所有加载请求都会传递到顶层的启动类加载器中,只有当父类加载无法完成加载请求(搜索范围中没有找到需要的类),子加载器才会尝试去加载</li>
+</ul>
+<h2 id="类加载的执行过程"><a href="#类加载的执行过程" class="headerlink" title="类加载的执行过程"></a>类加载的执行过程</h2><ol>
+<li>加载：根据查找路径找到相应的 class 文件然后导入</li>
+<li>检查：检查加载的 class 文件的正确性</li>
+<li>准备：给类中的静态变量分配内存空间</li>
+<li>解析：虚拟机将常量池中的符号引用替换成直接引用的过程。符号引用就理解为一个标示，而在直接引用直接指向内存中的地址</li>
+<li>初始化：对静态变量和静态代码块执行初始化工作</li>
+</ol>
+<p><img src="https://gitee.com/Anke1938/image/raw/master/img/20200401110312.jpg" alt="QQ截图20200401110302"></p>
+<h2 id="Jvm常用调优工具"><a href="#Jvm常用调优工具" class="headerlink" title="Jvm常用调优工具"></a>Jvm常用调优工具</h2><p>JDK 自带了很多监控工具，都位于 JDK 的 bin 目录下，其中最常用的是 jconsole 和 jvisualvm 这两款视图监控工具</p>
+<ol>
+<li>jconsole：用于对 JVM 中的内存、线程和类等进行监控；</li>
+<li>jvisualvm：JDK 自带的全能分析工具，可以分析：内存快照、线程快照、程序死锁、监控内存的变化、gc 变化等</li>
+</ol>
+<h2 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h2><p>反射机制是在运行状态中,对于任意一个类,都能够知道这个类的所有方法和属性,对任意一个对象,都能够条用它的任何方法和属性,动态获取动态条用</p>
+<p>forName  执行 static代码块</p>
+<h2 id="常用Jvm调优参数"><a href="#常用Jvm调优参数" class="headerlink" title="常用Jvm调优参数"></a>常用Jvm调优参数</h2><blockquote>
+<p><strong>（1）-Xms20M</strong></p>
+<p>表示设置JVM启动内存的最小值为20M，必须以M为单位</p>
+<p><strong>（2）-Xmx20M</strong></p>
+<p>表示设置JVM启动内存的最大值为20M，必须以M为单位。将-Xmx和-Xms设置为一样可以避免JVM内存自动扩展。大的项目-Xmx和-Xms一般都要设置到10G、20G甚至还要高</p>
+<p><strong>（3）-verbose:gc</strong></p>
+<p>表示输出虚拟机中GC的详细情况</p>
+<p><strong>（4）-Xss128k</strong></p>
+<p>表示可以设置虚拟机栈的大小为128k</p>
+<p><strong>（5）-Xoss128k</strong></p>
+<p>表示设置本地方法栈的大小为128k。不过HotSpot并不区分虚拟机栈和本地方法栈，因此对于HotSpot来说这个参数是无效的</p>
+<p><strong>（6）-XX:PermSize&#x3D;10M</strong></p>
+<p>表示JVM初始分配的永久代（方法区）的容量，必须以M为单位</p>
+<p><strong>（7）-XX:MaxPermSize&#x3D;10M</strong></p>
+<p>表示JVM允许分配的永久代（方法区）的最大容量，必须以M为单位，大部分情况下这个参数默认为64M</p>
+<p><strong>（8）-Xnoclassgc</strong></p>
+<p>表示关闭JVM对类的垃圾回收</p>
+<p><strong>（9）-XX:+TraceClassLoading</strong></p>
+<p>表示查看类的加载信息</p>
+<p><strong>（10）-XX:+TraceClassUnLoading</strong></p>
+<p>表示查看类的卸载信息</p>
+<p><strong>（11）-XX:NewRatio&#x3D;4</strong></p>
+<p>表示设置 年轻代（包括Eden和两个Survivor区）&#x2F;老年代 的大小比值为1：4，这意味着年轻代占整个堆的1&#x2F;5</p>
+<p>**（12）-XX:SurvivorRatio&#x3D;**8</p>
+<p>表示设置2个Survivor区：1个Eden区的大小比值为2:8，这意味着Survivor区占整个年轻代的1&#x2F;5，这个参数默认为8</p>
+<p><strong>（13）-Xmn20M</strong></p>
+<p>表示设置年轻代的大小为20M</p>
+<p><strong>（14）-XX:+HeapDumpOnOutOfMemoryError</strong></p>
+<p>表示可以让虚拟机在出现内存溢出异常时Dump出当前的堆内存转储快照</p>
+<p><strong>（15）-XX:+UseG1GC</strong></p>
+<p>表示让JVM使用G1垃圾收集器</p>
+<p><strong>（16）-XX:+PrintGCDetails</strong></p>
+<p>表示在控制台上打印出GC具体细节</p>
+<p><strong>（17）-XX:+PrintGC</strong></p>
+<p>表示在控制台上打印出GC信息</p>
+<p><strong>（18）-XX:PretenureSizeThreshold&#x3D;3145728</strong></p>
+<p>表示对象大于3145728（3M）时直接进入老年代分配，这里只能以字节作为单位</p>
+<p><strong>（19）-XX:MaxTenuringThreshold&#x3D;1</strong></p>
+<p>表示对象年龄大于1，自动进入老年代,如果设置为0的话，则年轻代对象不经过Survivor区，直接进入年老代。对于年老代比较多的应用，可以提高效率。如果将此值设置为一个较大值，则年轻代对象会在Survivor区进行多次复制，这样可以增加对象在年轻代的存活时间，增加在年轻代被回收的概率。</p>
+<p><strong>（20）-XX:CompileThreshold&#x3D;1000</strong></p>
+<p>表示一个方法被调用1000次之后，会被认为是热点代码，并触发即时编译</p>
+<p><strong>（21）-XX:+PrintHeapAtGC</strong></p>
+<p>表示可以看到每次GC前后堆内存布局</p>
+<p><strong>（22）-XX:+PrintTLAB</strong></p>
+<p>表示可以看到TLAB的使用情况</p>
+<p><strong>（23）-XX:+UseSpining</strong></p>
+<p>开启自旋锁</p>
+<p><strong>（24）-XX:PreBlockSpin</strong></p>
+<p>更改自旋锁的自旋次数，使用这个参数必须先开启自旋锁</p>
+<p><strong>（25）-XX:+UseSerialGC</strong></p>
+<p>表示使用jvm的串行垃圾回收机制，该机制适用于丹cpu的环境下</p>
+<p><strong>（26）-XX:+UseParallelGC</strong></p>
+<p>表示使用jvm的并行垃圾回收机制，该机制适合用于多cpu机制，同时对响应时间无强硬要求的环境下，使用-XX:ParallelGCThreads&#x3D;<N>设置并行垃圾回收的线程数，此值可以设置与机器处理器数量相等。</p>
+<p><strong>（27）-XX:+UseParallelOldGC</strong></p>
+<p>表示年老代使用并行的垃圾回收机制</p>
+<p><strong>（28）-XX:+UseConcMarkSweepGC</strong></p>
+<p>表示使用并发模式的垃圾回收机制，该模式适用于对响应时间要求高，具有多cpu的环境下</p>
+<p> <strong>（29）-XX:MaxGCPauseMillis&#x3D;100</strong></p>
+<p>设置每次年轻代垃圾回收的最长时间，如果无法满足此时间，JVM会自动调整年轻代大小，以满足此值。</p>
+<p><strong>（30）-XX:+UseAdaptiveSizePolicy</strong></p>
+<p>设置此选项后，并行收集器会自动选择年轻代区大小和相应的Survivor区比例，以达到目标系统规定的最低响应时间或者收集频率等，此值建议使用并行收集器时，一直打开</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer"><div class="post-widgets">
+    <div
+      class="social-share"
+      
+        data-sites="weibo,qq,wechat,tencent,douban,qzone,linkedin,diandian,facebook,twitter,google"
+      
+      
+        data-wechat-qrcode-title="share.title"
+      
+      
+        data-wechat-qrcode-helper="share.prompt"
+      
+    >
+    </div>
+  </div>
+  <script src="https://lib.baomitu.com/social-share.js/1.0.16/js/social-share.min.js"></script><script src="//sdk.jinrishici.com/v2/browser/jinrishici.js"></script>
+<script>
+  jinrishici.load((result) => {
+    let jrsc = document.getElementById('jrsc');
+    const data = result.data;
+    let author = data.origin.author;
+    let title = '《' + data.origin.title + '》';
+    let content = data.content.substr(0, data.content.length - 1);
+    let dynasty = data.origin.dynasty.substr(0, data.origin.dynasty.length - 1);
+    jrsc.innerText = content + ' @ ' + dynasty + '·' + author + title;
+  });
+</script>
+<div style="text-align: center"><span id="jrsc" >正在加载今日诗词....</span></div>
+
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/03/31/GC%E5%B0%8F%E6%80%BB%E7%BB%93/" rel="prev" title="GC小总结">
+                  <i class="fa fa-chevron-left"></i> GC小总结
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/04/01/Redis%E4%BD%A0%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84%E4%BA%8B%E6%83%85/" rel="next" title="Redis你要知道的事情">
+                  Redis你要知道的事情 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Tree</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">185k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">5:09</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div><script color="0,0,255" opacity="0.5" zIndex="-1" count="99" src="https://lib.baomitu.com/canvas-nest.js/1.0.1/canvas-nest.js"></script>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pangu/4.0.7/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
